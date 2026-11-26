@@ -75,7 +75,9 @@ function applyRaw(graph: Graph, cmd: Command, lab: LabConfig): Graph {
     const children = graph.entities.filter((e) => e.parent === parent.id);
     const index = children.length;
     const item = makeEntity(lab, cmd.kind, cmd.id, parent.id, {
-      ...(parent.id === rootId ? { x: 230 + index * 80, y: 690 } : lab.toolPosition(index)),
+      ...(parent.id === rootId
+        ? { x: 230 + index * 80, y: 690 }
+        : lab.toolPosition(index, { parent, graph, kind: cmd.kind })),
     });
     let suffix = 1;
     while (children.some((e) => e.name === lab.labels[item.kind] + ' ' + suffix)) suffix++;

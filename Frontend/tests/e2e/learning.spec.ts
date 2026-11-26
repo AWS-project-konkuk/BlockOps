@@ -131,11 +131,11 @@ test('Playground는 서비스와 노드를 추가·연결해 실행하고 새로
 }) => {
   await page.goto('/#/playground');
   const lab = page.getByTestId('system-lab');
-  await expect(lab.getByRole('heading', { name: 'MLOps 플레이그라운드' })).toBeVisible();
-  await expect(page.getByTestId('system-sources')).toBeVisible();
-  await expect(page.getByTestId('system-registry')).toBeVisible();
-  await page.getByTestId('system-sources').click({ position: { x: 20, y: 10 } });
-  await lab.getByRole('button', { name: '데이터 입력 추가' }).click();
+  await expect(lab.getByRole('heading', { name: 'AWS 플레이그라운드' })).toBeVisible();
+  await expect(page.getByTestId('system-internet')).toBeVisible();
+  await expect(page.getByTestId('system-vpc')).toBeVisible();
+  await page.getByTestId('system-internet').click({ position: { x: 20, y: 10 } });
+  await lab.getByRole('button', { name: '사용자 추가' }).click();
   await expect(page.getByTestId(/^node-/)).toHaveCount(1);
   await lab.getByRole('button', { name: '실행', exact: true }).click();
   await expect(lab.getByRole('status').first()).toContainText('연결');
@@ -147,7 +147,7 @@ test('Playground는 서비스와 노드를 추가·연결해 실행하고 새로
     .getByRole('button', { name: /삭제$/ })
     .click();
   await expect(page.getByTestId(/^node-/)).toHaveCount(0);
-  await page.getByLabel('MLOps 예시', { exact: true }).selectOption('level-5');
+  await page.getByLabel('AWS 예시', { exact: true }).selectOption('level-5');
   // 5단계 예시는 노드가 많아 기본 속도로는 오래 걸린다.
   await page.getByRole('slider', { name: /실행 속도/ }).fill('10');
   await lab.getByRole('button', { name: '실행', exact: true }).click();
