@@ -113,6 +113,6 @@ describe('이해 확인', () => {
       expect(quiz.correct, id).toBeLessThan(4);
       positions.add(quiz.correct);
     }
-    expect(positions.size).toBe(4);
+    expect(positions.size).toBe(Math.min(4, Object.keys(labConfigs).length));
   });
 });

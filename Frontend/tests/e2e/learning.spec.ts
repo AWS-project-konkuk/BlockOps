@@ -13,15 +13,15 @@ test('전체 과정·단원 필터·검색', async ({ page }) => {
   await page.goto('/');
   const lessons = await readLessons(page);
   await expect(page.locator('[data-testid^="lesson-card-"]')).toHaveCount(lessons.length);
-  for (const chapter of chapters) {
+  for (const chapter of chapters.filter((c) => lessons.some((l) => l.week === c.week))) {
     await page.getByRole('button', { name: `${chapter.week}단원`, exact: true }).click();
     await expect(page.locator('[data-testid^="lesson-card-"]')).toHaveCount(
       lessons.filter((l) => l.week === chapter.week).length,
     );
   }
   await page.getByRole('button', { name: '전체 과정', exact: true }).click();
-  await page.getByLabel('강의 검색').fill('HNSW');
-  await expect(page.getByTestId('lesson-card-ann-hnsw')).toBeVisible();
+  await page.getByLabel('강의 검색').fill('Prometheus');
+  await expect(page.getByTestId('lesson-card-prometheus')).toBeVisible();
 });
 test('모든 강의 주소·본문·지도·출처가 열리고 오류가 없다', async ({ page }) => {
   const errors: string[] = [];
@@ -31,8 +31,8 @@ test('모든 강의 주소·본문·지도·출처가 열리고 오류가 없다
   for (const lesson of lessons) {
     await page.goto(`/#/learn/${lesson.id}`);
     await expect(page.getByRole('heading', { name: lesson.title, exact: true })).toBeVisible();
-    await expect(page.getByLabel('전체 워크플로우 지도')).toBeVisible();
-    if (lesson.id === 'mlops-overview')
+    await expect(page.getByLabel('전체 구조 지도')).toBeVisible();
+    if (lesson.id === 'ec2-compute')
       await page.screenshot({ path: 'test-results/overview-desktop.png', fullPage: true });
     const source = lesson.references[0];
     await expect(page.getByText(source.title, { exact: true })).toHaveAttribute('href', source.url);
@@ -40,7 +40,7 @@ test('모든 강의 주소·본문·지도·출처가 열리고 오류가 없다
   expect(errors).toEqual([]);
 });
 test('읽기 전용 강의도 이해 확인으로 완료하고 새로고침 후 복원한다', async ({ page }) => {
-  await page.goto('/#/learn/mlops-overview');
+  await page.goto('/#/learn/container-isolation');
   const quiz = page.getByLabel('이해 확인', { exact: true });
   await expect(page.getByRole('button', { name: '다음 강의', exact: true })).toBeDisabled();
   await quiz.getByRole('radio').nth(1).check();
@@ -48,93 +48,81 @@ test('읽기 전용 강의도 이해 확인으로 완료하고 새로고침 후 
   await quiz.getByRole('radio').nth(0).check();
   await expect(quiz.getByRole('status')).toHaveCount(0);
   await quiz.getByRole('button', { name: '정답 확인하기', exact: true }).click();
-  await expect(page).toHaveURL(/mlops-overview$/);
+  await expect(page).toHaveURL(/container-isolation$/);
   await expect(page.getByRole('link', { name: '다음 강의', exact: true })).toBeVisible();
   await expect
     .poll(() => page.evaluate(() => localStorage.getItem('blockops:learning:v5')))
-    .toContain('mlops-overview');
+    .toContain('container-isolation');
   await page.reload();
   await expect(page.getByRole('link', { name: '다음 강의', exact: true })).toBeVisible();
 });
 test('선택 활동을 조작하지 않고 이해 확인을 완료한다', async ({ page }) => {
-  await page.goto('/#/learn/cpu-gpu');
+  await page.goto('/#/learn/canary');
   await expect(page.getByTestId('inline-activity')).toBeHidden();
-  const lesson = (await readLessons(page)).find((l) => l.id === 'cpu-gpu')!;
+  const lesson = (await readLessons(page)).find((l) => l.id === 'canary')!;
   const quiz = page.getByLabel('이해 확인', { exact: true });
   await quiz.getByRole('radio').nth(lesson.assessment!.correct).check();
   await expect(quiz.getByRole('status')).toHaveCount(0);
   await quiz.getByRole('button', { name: '정답 확인하기', exact: true }).click();
-  await expect(page).toHaveURL(/cpu-gpu$/);
+  await expect(page).toHaveURL(/canary$/);
   await expect
     .poll(() =>
       page.evaluate(
         () =>
-          JSON.parse(localStorage.getItem('blockops:learning:v5') ?? '{}').lessons?.['cpu-gpu']
+          JSON.parse(localStorage.getItem('blockops:learning:v5') ?? '{}').lessons?.['canary']
             ?.completed,
       ),
     )
     .toBe(true);
-  await page.goto('/#/learn/cpu-gpu');
+  await page.goto('/#/learn/canary');
   await expect(page.getByRole('link', { name: '다음 강의', exact: true })).toBeVisible();
   await page.getByTestId('activity-frame').locator('summary').click();
   await expect(page.getByTestId('inline-activity')).toBeVisible();
-  await page.getByRole('button', { name: '연산 1개', exact: true }).click();
-  await expect(page.getByTestId('activity-result')).toContainText('CPU가 더 짧은 시간');
+  const traffic = page.getByRole('spinbutton', { name: '신규 모델 트래픽 (%)' });
+  await traffic.fill('50');
+  await traffic.blur();
   await expect
     .poll(() =>
       page.evaluate(
         () =>
-          JSON.parse(localStorage.getItem('blockops:learning:v5') ?? '{}').lessons?.['cpu-gpu']
-            ?.answers.jobs,
+          JSON.parse(localStorage.getItem('blockops:learning:v5') ?? '{}').lessons?.['canary']
+            ?.answers.traffic,
       ),
     )
-    .toBe(1);
+    .toBe(50);
   await page.reload();
   await expect(page.getByRole('link', { name: '다음 강의', exact: true })).toBeVisible();
   await page.getByTestId('activity-frame').locator('summary').click();
-  await expect(page.getByRole('spinbutton', { name: '연산 개수' })).toHaveValue('1');
+  await expect(page.getByRole('spinbutton', { name: '신규 모델 트래픽 (%)' })).toHaveValue('50');
 });
 test('이전 기록·Playground를 보존하고 새 평가로 승격하지 않는다', async ({ page }) => {
-  const raw = JSON.stringify({ version: 4, lessons: { 'cpu-gpu': { completed: true } } });
+  const raw = JSON.stringify({ version: 4, lessons: { canary: { completed: true } } });
   await page.addInitScript((raw) => {
     localStorage.setItem('blockops:learning:v4', raw);
     localStorage.setItem('flow-lab:playground:v1', 'previous');
   }, raw);
-  await page.goto('/#/learn/cpu-gpu');
+  await page.goto('/#/learn/canary');
   await expect(page.getByRole('button', { name: '다음 강의', exact: true })).toBeDisabled();
   expect(await page.evaluate(() => localStorage.getItem('blockops:learning:v4'))).toBe(raw);
   expect(await page.evaluate(() => localStorage.getItem('flow-lab:playground:v1'))).toBe(
     'previous',
   );
 });
-test('노드 실습은 본문부터 열리고 단계별 편집을 제공한다', async ({ page }) => {
-  await page.goto('/#/learn/week5-workflow');
-  await expect(page.getByTestId('weekly-canvas')).toBeHidden();
-  await page.getByRole('button', { name: '실습 영역 확장', exact: true }).click();
-  await page.getByRole('button', { name: '1. 예시 흐름 추적' }).click();
-  await expect(
-    page.getByTestId('weekly-canvas').getByText('상품·행동 원천', { exact: true }).first(),
-  ).toBeVisible();
-  await page.getByRole('button', { name: '연결 검사', exact: true }).click();
-  await expect(
-    page.getByText('포트 연결 조건을 충족했습니다. 실행 조건도 확인하세요.', { exact: true }),
-  ).toBeVisible();
-});
 test('모바일 읽기·목차·지도 이동', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/#/learn/mlops-overview');
+  await page.goto('/#/learn/runtime-overview');
   await page.getByRole('button', { name: '강의 목차 열기' }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).toBeHidden();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: 'test-results/overview-mobile.png', fullPage: true });
-  await page.getByLabel('전체 워크플로우 지도').getByRole('link').first().click();
-  await expect(page).toHaveURL(/storage-compare/);
+  await page.getByLabel('전체 구조 지도').getByRole('link').first().click();
+  await expect(page).toHaveURL(/ec2-compute/);
 });
 test('손상 저장은 원본을 보존하며 학습을 허용한다', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('blockops:learning:v5', 'broken'));
-  await page.goto('/#/learn/mlops-overview');
+  await page.goto('/#/learn/ec2-compute');
   await expect(page.getByRole('alert')).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem('blockops:learning:v5'))).toBe('broken');
 });
@@ -189,12 +177,12 @@ test('강의 화면을 불러오지 못하면 500을 표시하고 다시 열 수
 
 test('라우터가 기본 주소, Playground, 404와 브라우저 뒤로 가기를 처리한다', async ({ page }) => {
   await page.goto('/');
-  await expect(page).toHaveTitle('BlockOps | MLOps 학습 과정');
+  await expect(page).toHaveTitle('BlockOps | DevOps 학습 과정');
   await page.getByRole('link', { name: 'Playground', exact: true }).click();
   await expect(page).toHaveURL(/#\/playground$/);
   await expect(page).toHaveTitle('Playground | BlockOps');
   await page.goBack();
-  await expect(page).toHaveTitle('BlockOps | MLOps 학습 과정');
+  await expect(page).toHaveTitle('BlockOps | DevOps 학습 과정');
   await page.goto('/#/unknown');
   await expect(page.getByRole('heading', { name: '404', exact: true })).toBeVisible();
   await expect(page.getByText('페이지를 찾을 수 없습니다.', { exact: true })).toBeVisible();
@@ -222,17 +210,16 @@ test('오류 화면에 응답 상태와 설명을 표시하고 다시 시도할 
   await page.screenshot({ path: 'test-results/error-page-mobile.png' });
 });
 
-test('0단원은 전체 흐름·EC2·S3·Git·첫 실습을 순서대로 표시한다', async ({ page }) => {
+test('0단원은 EC2·S3·Git·첫 실습을 순서대로 표시한다', async ({ page }) => {
   await page.goto('/#/learn');
   await readLessons(page);
   await page.getByRole('button', { name: '0단원', exact: true }).click();
-  await expect(page.locator('[data-testid^="lesson-card-"]')).toHaveCount(5);
+  await expect(page.locator('[data-testid^="lesson-card-"]')).toHaveCount(4);
   expect(
     await page
       .locator('[data-testid^="lesson-card-"]')
       .evaluateAll((cards) => cards.map((card) => card.getAttribute('data-testid'))),
   ).toEqual([
-    'lesson-card-mlops-overview',
     'lesson-card-ec2-compute',
     'lesson-card-s3-objects',
     'lesson-card-git-basics',
@@ -242,17 +229,16 @@ test('0단원은 전체 흐름·EC2·S3·Git·첫 실습을 순서대로 표시�
   await page.goto('/#/learn/ec2-compute');
   await expect(page.getByText('전체 지도 + 0~9단원', { exact: true })).toBeVisible();
   const foundation = page.getByRole('navigation', { name: '강의 목차' }).locator('details[open]');
-  await expect(foundation.locator('a')).toHaveCount(5);
+  await expect(foundation.locator('a')).toHaveCount(4);
   expect(
     await foundation
       .locator('a')
       .evaluateAll((links) => links.map((link) => link.getAttribute('href'))),
   ).toEqual([
-    '#/learn/mlops-overview',
     '#/learn/ec2-compute',
     '#/learn/s3-objects',
     '#/learn/git-basics',
     '#/learn/intro-workflow',
   ]);
-  await expect(foundation.locator('a > span')).toHaveText(['01', '02', '03', '04', '05']);
+  await expect(foundation.locator('a > span')).toHaveText(['01', '02', '03', '04']);
 });

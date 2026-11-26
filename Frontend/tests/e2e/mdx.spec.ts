@@ -10,23 +10,22 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('괄호가 포함된 강조는 한글 어미와 붙어 있어도 굵게 표시된다', async ({ page }) => {
-  await page.goto('/#/learn/git-lfs');
+  await page.goto('/#/learn/storage-lifecycle');
   const reading = page.getByTestId('lesson-reading');
-  const term = reading.locator('strong').getByText('포인터(pointer)', { exact: true });
+  const term = reading.locator('strong').getByText('읽기(Read)', { exact: true });
   await expect(term).toBeVisible();
-  await expect(term.locator('..')).toContainText('포인터(pointer)입니다.');
+  await expect(term.locator('..')).toContainText('읽기(Read)는');
 });
 
 test('강의의 인라인 코드는 문장 안에서 구분되고 코드 블록도 렌더링된다', async ({ page }) => {
-  await page.goto('/#/learn/feature-store');
+  await page.goto('/#/learn/docker-commands');
   const reading = page.getByTestId('lesson-reading');
-  const code = reading.locator('p > code').getByText('최근 1시간 클릭 수', { exact: true });
+  const code = reading.locator('p > code').getByText('app.py', { exact: true }).first();
   await expect(code).toBeVisible();
   await expect(code).toHaveCSS('display', 'inline');
   await expect(code).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
 
-  await page.goto('/#/learn/git-lfs');
-  const block = reading.locator('pre > code').filter({ hasText: 'git lfs install' });
+  const block = reading.locator('pre > code').filter({ hasText: 'FROM python:3.12-slim' });
   await expect(block).toBeVisible();
   await expect(block).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
 });

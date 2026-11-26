@@ -3,16 +3,8 @@ import { resolveScenario } from './scenarios';
 import { workflowEdge } from './engine';
 
 const working: Record<string, Record<string, Answer>> = {
-  'week1-workflow': { strategy: 'tensor' },
   'week2-workflow': { image: 'v1', deployment: 'v1', healing: 'on' },
-  'week3-workflow': { cache: 'on', shard: 'on', persistent: 'volume' },
-  'week4-workflow': { operation: 'pull' },
-  'week5-workflow': { window: 'hour', embedding: 'same', retrieval: 'relevant' },
-  'feature-workflow': { window: 'hour' },
-  'rag-workflow': { embedding: 'same', retrieval: 'relevant' },
   'week6-workflow': { strategy: 'shadow', ready: 'yes' },
-  'week7-workflow': { decision: 'investigate', quality: 0.9 },
-  'pipeline-capstone': { threshold: 0.8 },
 };
 
 /** 과제 모드가 바뀌면 연결과 설정을 함께 초기화해 이전 답을 남기지 않는다. */

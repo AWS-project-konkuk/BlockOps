@@ -10,10 +10,10 @@ test.beforeEach(async ({ page }) => {
   );
 });
 
-test('11개 개념 강의의 본문 중간에 작은 노드 예제가 열린다', async ({ page }) => {
+test('개념 강의의 본문 중간에 작은 노드 예제가 열린다', async ({ page }) => {
   await page.goto('/');
   const examples = (await readLessons(page)).filter((lesson) => lesson.nodeExample);
-  expect(examples).toHaveLength(11);
+  expect(examples).toHaveLength(5);
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   for (const lesson of examples) {
@@ -126,12 +126,12 @@ test('구성 관계는 전송 애니메이션으로 오해시키지 않으며 �
 
 test('모바일에서도 본문을 스크롤하고 키보드 방식으로 연결할 수 있다', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/#/learn/rag');
-  const example = page.getByTestId('inline-node-rag');
+  await page.goto('/#/learn/pv-pvc');
+  const example = page.getByTestId('inline-node-pv-pvc');
   await example.scrollIntoViewIfNeeded();
   await example.getByRole('button', { name: '직접 연결해 보기', exact: true }).click();
-  await example.getByLabel('예제 출발 노드').selectOption('search');
-  await example.getByLabel('예제 도착 노드').selectOption('generation');
+  await example.getByLabel('예제 출발 노드').selectOption('pod');
+  await example.getByLabel('예제 도착 노드').selectOption('pvc');
   await example.getByRole('button', { name: '선택한 노드 연결', exact: true }).click();
   await expect(example.locator('.react-flow__edge')).toHaveCount(1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

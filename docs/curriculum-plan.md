@@ -75,13 +75,18 @@ BlockML(MLOps)의 엔진을 그대로 쓰고, 강의·노드·실습 규칙을 3
 
 ## 4. 기존 BlockML 강의 정리
 
-파일 단위로 내용을 확인한 뒤 확정한다. 아래는 제목 기준 1차 분류다.
+1단계(ML 콘텐츠 제거)에서 확정한 배치다. 폴더 번호는 단원 번호와 같다. 남긴 강의의 본문에는 아직 모델 학습·서빙 예시가 남아 있어서 5단계에서 DevOps 예시로 바꾼다.
 
-| 분류 | 강의 |
+| 단원 | 남긴 강의 |
 |---|---|
-| 재사용 후보(문구 일반화) | `00-overview/ec2-compute`, `00-overview/s3-objects`, `02-runtime/*`(VM·Docker·k8s), `03-storage/storage-compare`, `03-storage/pv-pvc`, `08-serving/blue-green`, `08-serving/canary`, `08-serving/recreate-release`, `09-monitoring/prometheus`, `09-monitoring/observability-signals` |
-| 검토 필요 | `00-overview/git-basics`, `03-storage/storage-lifecycle`, `08-serving/serving-protocols`, `08-serving/shadow` |
-| 제거 | `00-overview/mlops-overview`, `00-overview/intro-workflow`, `03-storage/object-mlops`, `03-storage/io-starvation`, `04-reproducibility/*`, `05-gpu/*`, `06-features/*`, `07-rag/*`, `08-serving/serving-modes`, `09-monitoring/model-drift`, `09-monitoring/monitor-improve`, `10-capstone/*` |
+| 0 `00-cloud` | `ec2-compute`, `s3-objects`, `git-basics`, `intro-workflow`(Git·S3·EC2 첫 노드 실습이라 유지) |
+| 1 `01-storage` | `storage-compare` |
+| 5 `05-container` | `runtime-overview`, `vm-container`, `docker-commands`, `container-isolation`, `docker-image`, `k8s-basics`, `k8s-control-traffic`, `storage-lifecycle`, `pv-pvc`, `week2-workflow` |
+| 6 `06-serverless` | `serving-protocols`(API Gateway의 REST·HTTP와 연결) |
+| 7 `07-observability` | `observability-signals`, `prometheus` |
+| 9 `09-delivery` | `recreate-release`, `blue-green`, `canary`, `shadow`, `week6-workflow` |
+
+제거한 강의: `mlops-overview`, `object-mlops`, `io-starvation`, `week3-workflow`, `04-reproducibility/*`, `05-gpu/*`, `06-features/*`, `07-rag/*`, `serving-modes`, `model-drift`, `monitor-improve`, `week7-workflow`, `10-capstone/*`
 
 ## 5. 작업 순서
 
