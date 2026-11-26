@@ -19,7 +19,7 @@ test('실행 속도 슬라이더 값을 기억하고 단계가 그 속도로 진
   await speed.fill('1');
   await page.reload();
   await expect(playground.getByRole('slider', { name: /실행 속도/ })).toHaveValue('1');
-  await playground.getByLabel('MLOps 예시', { exact: true }).selectOption('level-1');
+  await playground.getByLabel('AWS 예시', { exact: true }).selectOption('level-1');
   await playground.getByRole('button', { name: '실행', exact: true }).click();
   // 가장 느린 속도(단계당 3초)에서는 2초가 지나도 노드 3개의 실행이 끝나지 않는다.
   await page.waitForTimeout(2000);
@@ -35,7 +35,7 @@ test('실행 속도 슬라이더 값을 기억하고 단계가 그 속도로 진
 test('자료를 보내는 동안 선을 따라 동그라미가 움직인다', async ({ page }) => {
   await page.goto('/#/playground');
   const playground = page.getByTestId('playground');
-  await playground.getByLabel('MLOps 예시', { exact: true }).selectOption('level-1');
+  await playground.getByLabel('AWS 예시', { exact: true }).selectOption('level-1');
   await playground.getByRole('slider', { name: /실행 속도/ }).fill('2');
   await playground.getByRole('button', { name: '실행', exact: true }).click();
   const packet = playground
