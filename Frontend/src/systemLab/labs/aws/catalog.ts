@@ -1,6 +1,8 @@
 import type { Strategy } from '../../engine';
 import type { Kind, LabConfig, PortSpec, SettingSpec } from '../../lab';
 import { choice, datum, josa, port, received, setting } from '../kit';
+import { fanOut, incoming, request, requestSummary } from './request';
+import { withRules } from './rules';
 
 /**
  * AWS 서비스와 리소스 노드 카탈로그. 실습과 Playground가 필요한 종류만 골라 쓴다.
@@ -26,36 +28,6 @@ export const awsMaterials: Record<string, string> = {
   metric: '지표',
 };
 
-export interface RequestData extends Record<string, unknown> {
-  /** 이 경로로 들어온 요청 수. */
-  count: number;
-  /** 사용자가 처음 보낸 요청 수. */
-  total: number;
-  protocol: 'https' | 'http';
-  path: string;
-  /** 지나온 노드 이름. */
-  trace: string[];
-}
-const requestSummary = (data: RequestData) =>
-  data.protocol.toUpperCase() + ' 요청 ' + data.count + '건';
-export const request = (data: RequestData) => datum('request', requestSummary(data), data);
-export const requestsOf = (inputs: Parameters<Strategy>[0]['inputs']) =>
-  received(inputs, 'request').map((item) => item.data as RequestData);
-
-/** 여러 경로로 들어온 요청을 하나로 합친다. 들어온 요청이 없으면 오류를 낸다. */
-export function incoming(ctx: Parameters<Strategy>[0], label = 'HTTP 요청'): RequestData {
-  const list = requestsOf(ctx.inputs);
-  if (!list.length) throw new Error(label + ' 입력이 없습니다.');
-  const first = list[0];
-  return {
-    ...first,
-    count: list.reduce((sum, item) => sum + item.count, 0),
-    trace: [...first.trace, ctx.node.name],
-  };
-}
-/** 출력 포트에 연결된 선 수. */
-export const fanOut = (ctx: Parameters<Strategy>[0], portId: string) =>
-  ctx.graph.connections.filter((e) => e.from.node === ctx.node.id && e.from.port === portId).length;
 const connected = (ctx: Parameters<Strategy>[0], portId: string) => fanOut(ctx, portId) > 0;
 
 const num = (
@@ -117,6 +89,17 @@ export const awsKinds: Record<Kind, AwsKind> = {
         ['10.0.0.0/16', '10.0.0.0/16 (약 65,000개)'],
         ['10.0.0.0/24', '10.0.0.0/24 (약 250개)'],
       ]),
+      choice(
+        'outage',
+        '장애 실험',
+        'none',
+        [
+          ['none', '정상'],
+          ['a', 'ap-northeast-2a 중단'],
+          ['c', 'ap-northeast-2c 중단'],
+        ],
+        '가용 영역 하나가 멈췄을 때 서비스가 버티는지 확인합니다.',
+      ),
     ],
   },
   subnet: {
@@ -185,7 +168,9 @@ export const awsKinds: Record<Kind, AwsKind> = {
       const count = Number(setting(ctx.node, 'traffic'));
       const protocol = setting(ctx.node, 'protocol') === 'http' ? 'http' : 'https';
       const path = String(setting(ctx.node, 'path'));
-      ctx.emit(request({ count, total: count, protocol, path, trace: [ctx.node.name] }));
+      ctx.emit(
+        request({ count, total: count, protocol, path, trace: [ctx.node.name], hops: ['user'] }),
+      );
       return (
         '사용자가 ' + path + '로 ' + protocol.toUpperCase() + ' 요청 ' + count + '건을 보냈습니다.'
       );
@@ -211,7 +196,7 @@ export const awsKinds: Record<Kind, AwsKind> = {
         ['60', '1분'],
         ['86400', '24시간'],
       ]),
-      choice('deploy', '새 버전 배포 후', 'none', [
+      choice('deploy', '새 버전 배포 후', 'versioned', [
         ['none', '아무것도 안 함'],
         ['invalidate', 'Invalidation 실행'],
         ['versioned', '파일 이름에 버전 붙이기'],
@@ -665,7 +650,7 @@ export function fromAws(pick: {
     managedPorts[kind] = [...ins, ...outs];
     if (def.ports) ports[kind] = def.ports;
     if (def.settings) settingSpecs[kind] = def.settings;
-    if (def.run) strategies[kind] = def.run;
+    if (def.run) strategies[kind] = withRules(kind, def.run);
   }
   const services = Object.keys(all).filter((kind) => all[kind].service && kind !== 'root');
   const tools = pick.tools ?? awsTools;
