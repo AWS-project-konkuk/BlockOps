@@ -19,5 +19,4 @@ export const labFor = (lessonId: string): LabConfig | undefined =>
       ? playgroundLab
       : undefined;
 
-export const hasNodePractice = (lesson: { id: string; workflow?: string }): boolean =>
-  Boolean(lesson.workflow || labFor(lesson.id));
+export const hasNodePractice = (lesson: { id: string }): boolean => Boolean(labFor(lesson.id));

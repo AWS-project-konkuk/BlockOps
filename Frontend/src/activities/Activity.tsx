@@ -38,9 +38,7 @@ function ActivityBody({ lesson, view }: { lesson: Lesson; view: ActivityView }) 
   switch (view.type) {
     case 'machine':
     case 'virtual':
-    case 'storage':
-    case 'io':
-    case 'feature-store': {
+    case 'storage': {
       const Body = dedicatedActivities[view.type];
       return <Body />;
     }

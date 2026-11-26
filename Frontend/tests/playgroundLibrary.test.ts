@@ -6,6 +6,7 @@ import {
   usePlaygroundLibrary,
 } from '../src/playground/library';
 import { playgroundLab } from '../src/systemLab/labs';
+import { readWorkflow, toWorkflow, WORKFLOW_VERSION } from '../src/playground/workflow';
 
 const graph = () => playgroundLab.initial();
 const reset = () => usePlaygroundLibrary.setState({ items: [], openId: null, warning: '' });
@@ -74,5 +75,17 @@ describe('내 Playground 목록', () => {
 
   it('빈 이름은 기본 이름을 쓴다', () => {
     expect(uniqueName('  ', [])).toBe('내 Playground');
+  });
+});
+
+describe('게시판 워크플로우 형식 버전', () => {
+  it('현재 버전으로 저장하고 다시 읽는다', () => {
+    const workflow = toWorkflow(graph());
+    expect(workflow.version).toBe(WORKFLOW_VERSION);
+    expect(readWorkflow({ workflow }).graph).toEqual(workflow.graph);
+  });
+  it('BlockML(MLOps) 노드로 만든 버전 2 구성은 이유를 알려 주며 거부한다', () => {
+    expect(() => readWorkflow({ version: 2, graph: graph() })).toThrow('BlockML(MLOps)');
+    expect(() => readWorkflow({ version: 1, graph: graph() })).toThrow('이전 Playground 형식');
   });
 });

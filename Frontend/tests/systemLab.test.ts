@@ -38,7 +38,7 @@ describe('Docker·Kubernetes 시범 실행', () => {
     const result = runLab(rebuilt, 'run-1');
     expect(result.success).toBe(true);
     expect(result.responses.map((r) => r.id).sort((a, b) => a - b)).toEqual(definition.requestIds);
-    expect(result.responses.filter((r) => r.pod === 'new-pod-b')).toHaveLength(5);
+    expect(result.responses.filter((r) => r.node === 'new-pod-b')).toHaveLength(5);
   });
   it('이전 실행 플래그를 지우고 성공 기록과 그래프를 복원한다', () => {
     const graph = ready();
@@ -100,7 +100,7 @@ describe('Docker·Kubernetes 시범 실행', () => {
     expect(
       result.steps
         .find((step) => step.node === 'start')
-        ?.transfers.some((transfer) => transfer.description === 'model.pkl · v1'),
+        ?.transfers.some((transfer) => transfer.description === '모델 v1'),
     ).toBe(true);
     expect(() => applyCommand(graph, { type: 'connect', edge: serviceRoutes(graph)[0] })).toThrow();
     expect(result.responses.every((response) => response.viaService === 'service')).toBe(true);
@@ -213,7 +213,7 @@ describe('Docker·Kubernetes 시범 실행', () => {
     expect(saved.proof).toBe(signature(saved.graph));
     const run = runLab(saved.graph, 'old-save');
     expect(run.success).toBe(true);
-    expect(run.responses.every((response) => response.model === 'v2')).toBe(true);
+    expect(run.responses.every((response) => response.payload === 'v2')).toBe(true);
   });
   it('영역 정리는 자식의 화면 위치와 연결을 그대로 둔다', () => {
     const graph = applyCommand(ready(), {

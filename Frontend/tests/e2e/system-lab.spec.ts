@@ -57,7 +57,7 @@ test('마우스로 연결·실행하고 진도와 편집을 복원한다', async
   await modelWire.focus();
   await page.keyboard.press('Enter');
   await expect(lab.getByRole('status').filter({ hasText: '출발 → Pod 1' })).toContainText(
-    'model.pkl · v1',
+    '모델 v1',
   );
   await lab.getByRole('radio').nth(2).check();
   await lab.getByRole('button', { name: '정답 확인' }).click();

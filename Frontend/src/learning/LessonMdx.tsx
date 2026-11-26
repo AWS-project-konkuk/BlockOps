@@ -3,10 +3,8 @@ import type { MDXComponents } from 'mdx/types';
 import { createContext, isValidElement, useContext, useState, type ReactNode } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { Activity as LearningActivity } from '../activities/Activity';
-import { lessonById } from '../curriculum/blockops';
 import type { NodeExampleSpec } from '../curriculum/nodeExamples';
 import type { Lesson, Reading } from '../curriculum/types';
-import { WeeklyLab } from '../weekly/WeeklyLab';
 import { getLab } from './blockProgress';
 import { InlineNodeExample } from './InlineNodeExample';
 import { useLearning } from './LearningStore';
@@ -248,16 +246,6 @@ function Question({
     </section>
   );
 }
-function WorkflowLab({ lessonId }: { lessonId: string }) {
-  const lesson = lessonById[lessonId];
-  if (!lesson?.workflow) throw new Error(`${lessonId}: 종합 실습 강의 ID가 필요합니다.`);
-  return (
-    <div className={styles.mdxWorkflow}>
-      <WeeklyLab lesson={lesson} />
-    </div>
-  );
-}
-
 // 컴포넌트는 모듈 단위로 고정해 문항 선택·노드 이동 때 실습이 재생성되지 않게 합니다.
 export const lessonMdxComponents: MDXComponents = {
   NodeExample,
@@ -271,7 +259,6 @@ export const lessonMdxComponents: MDXComponents = {
   Reveal,
   Callout,
   Question,
-  WorkflowLab,
   img: MdxImage,
   pre: MdxPre,
   table: MdxTable,

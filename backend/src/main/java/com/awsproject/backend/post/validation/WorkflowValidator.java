@@ -8,6 +8,8 @@ import jakarta.validation.ConstraintValidatorContext;
 import tools.jackson.databind.JsonNode;
 
 public class WorkflowValidator implements ConstraintValidator<ValidWorkflow, JsonNode> {
+    /** 프론트엔드 `WORKFLOW_VERSION`(playground/workflow.ts)과 같은 값. 2는 BlockML(MLOps) 노드 형식이다. */
+    public static final int WORKFLOW_VERSION = 3;
     private static final int MAX_ENTITIES = 200;
     private static final int MAX_CONNECTIONS = 500;
     private static final int MAX_ID_LENGTH = 100;
@@ -26,6 +28,7 @@ public class WorkflowValidator implements ConstraintValidator<ValidWorkflow, Jso
         JsonNode version = workflow.get("version");
         JsonNode graph = workflow.get("graph");
         if (version == null || !version.isIntegralNumber()
+                || version.asInt() != WORKFLOW_VERSION
                 || graph == null || !graph.isObject()) {
             return false;
         }
