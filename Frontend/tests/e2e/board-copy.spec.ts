@@ -7,7 +7,7 @@ const postId = '11111111-1111-4111-8111-111111111111';
 const workflow = toWorkflow(
   applyCommand(
     playgroundLab.initial(),
-    { type: 'add', id: 'shared', kind: 'input', parent: 'sources' },
+    { type: 'add', id: 'shared', kind: 's3', parent: 'storage' },
     playgroundLab,
   ),
 );

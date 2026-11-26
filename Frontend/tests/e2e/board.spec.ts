@@ -10,7 +10,7 @@ const workflow = toWorkflow(
   applyCommand(
     applyCommand(
       playgroundLab.initial(),
-      { type: 'add', id: 'shared', kind: 'input', parent: 'sources' },
+      { type: 'add', id: 'shared', kind: 's3', parent: 'storage' },
       playgroundLab,
     ),
     { type: 'settings', id: 'shared', name: '공유 버킷' },

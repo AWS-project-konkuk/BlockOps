@@ -111,8 +111,8 @@ export interface LabConfig {
   portTypes: Record<Kind, Record<Direction, readonly Material[]>>;
   /** 삭제·이동이 막히는 고정 종류(루트, 시작, 도착). */
   fixedKinds: readonly Kind[];
-  /** 서비스 안에서 도구로 만든 index번째 노드의 위치. */
-  toolPosition: (index: number) => Point;
+  /** 서비스 안에서 도구로 만든 index번째 노드의 위치. 부모와 현재 그래프, 만들 종류를 참고할 수 있다. */
+  toolPosition: (index: number, at?: { parent: SystemEntity; graph: Graph; kind: Kind }) => Point;
   /** 도구로 만든 노드를 켠 상태로 시작할지. 1단원은 직접 켜는 과제라 false이다. */
   /** 서비스 설정이 관리해 학습자가 포트를 바꾸지 않는 자료 타입. */
   managedPorts: Partial<Record<Kind, readonly Material[]>>;

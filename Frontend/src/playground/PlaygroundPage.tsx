@@ -83,12 +83,12 @@ function ImportWorkflow({ linkedId }: { linkedId: string }) {
   );
 }
 
-/** 쉬운 구성부터 전체 MLOps까지 5단계 예시 중 하나를 불러온다. 현재 구성은 확인 뒤에 바꾼다. */
+/** 쉬운 구성부터 전체 AWS 구성까지 5단계 예시 중 하나를 불러온다. 현재 구성은 확인 뒤에 바꾼다. */
 function LoadExample() {
   const store = labStore(playgroundLab);
   return (
     <NativeSelect
-      aria-label="MLOps 예시"
+      aria-label="AWS 예시"
       value=""
       onChange={(event) => {
         const example = exampleWorkflows.find((item) => item.id === event.target.value);
@@ -102,7 +102,7 @@ function LoadExample() {
         usePlaygroundLibrary.getState().open(null);
       }}
     >
-      <option value="">MLOps 예시 (1~5단계)</option>
+      <option value="">AWS 예시 (1~5단계)</option>
       {exampleWorkflows.map((item) => (
         <option key={item.id} value={item.id}>
           {item.title}
