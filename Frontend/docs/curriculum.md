@@ -9,8 +9,8 @@ BlockOps는 3학년 2학기 DevOps 스터디 워크북(1~7차시와 Prometheus �
 | 0    | 클라우드와 EC2     | 1차시        | EC2, S3, Git, 첫 노드 실습                        |
 | 1    | 스토리지와 CDN     | 2차시        | Block·File·Object, S3 권한, CloudFront 캐시, 실습 |
 | 2    | 네트워킹           | 3차시        | VPC·서브넷, 라우팅·IGW·NAT, 보안 그룹·NACL, 실습  |
-| 3    | 확장성과 고가용성  | 4차시        | 작성 전                                           |
-| 4    | 디커플링           | 5차시        | 작성 전                                           |
+| 3    | 확장성과 고가용성  | 4차시        | 확장성·고가용성, ALB·ASG, RDS Multi-AZ, 실습      |
+| 4    | 디커플링           | 5차시        | SQS, SNS Fan-out, Kinesis 비교, 실습              |
 | 5    | 컨테이너           | 6차시        | VM·Docker·Kubernetes·볼륨, 컨테이너 종합 실습     |
 | 6    | 서버리스           | 7차시        | HTTP·gRPC                                         |
 | 7    | 관측               | Prometheus   | 지표·로그·트레이스, Prometheus                    |

@@ -312,13 +312,27 @@ export const awsRules: Record<Kind, (base: Strategy) => Strategy> = {
   sqs: (base) => (ctx) => {
     const fifo = String(setting(ctx.node, 'type')) === 'fifo';
     const shortVisibility = String(setting(ctx.node, 'visibility')) === '5';
-    const message = base(ctx);
     const count = received(ctx.inputs, 'message').reduce(
       (s, m) => s + Number(m.data.count ?? 1),
       0,
     );
     const duplicates = fifo ? 0 : Math.max(1, Math.round(count * (shortVisibility ? 0.2 : 0.02)));
     if (duplicates) ctx.observe('duplicate-delivery');
+    // 표준 큐는 같은 메시지를 한 번 더 전달할 수 있다. 소비자에게 가는 메시지에 중복 수를 싣는다.
+    const message = base({
+      ...ctx,
+      emit: (artifact, portId) =>
+        ctx.emit(
+          artifact.type === 'data' && artifact.material === 'message' && duplicates
+            ? {
+                ...artifact,
+                summary: artifact.summary + ' · 중복 ' + duplicates + '건',
+                data: { ...artifact.data, duplicates },
+              }
+            : artifact,
+          portId,
+        ),
+    });
     return (
       message +
       (duplicates
