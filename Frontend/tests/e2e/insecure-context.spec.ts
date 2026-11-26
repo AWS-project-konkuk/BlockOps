@@ -23,9 +23,9 @@ test('randomUUID가 없는 HTTP 환경에서도 노드를 만들고 실행한다
   const nodes = playground.locator('.react-flow__node');
   await expect(nodes.first()).toBeVisible();
   const before = await nodes.count();
-  await playground.getByRole('button', { name: '입력 소스 추가' }).click();
+  await playground.getByRole('button', { name: '인터넷 추가' }).click();
   await expect(nodes).toHaveCount(before + 1);
-  await playground.getByLabel('MLOps 예시', { exact: true }).selectOption('level-1');
+  await playground.getByLabel('AWS 예시', { exact: true }).selectOption('level-1');
   await playground.getByRole('slider', { name: /실행 속도/ }).fill('10');
   await playground.getByRole('button', { name: '실행', exact: true }).click();
   await expect(playground.getByRole('button', { name: '실행', exact: true })).toBeVisible({
