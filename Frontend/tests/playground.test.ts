@@ -163,11 +163,13 @@ describe('플레이그라운드 AI 조언', () => {
   const nodes: Node[] = [
     ['user', 'user', 'internet'],
     ['gw', 'igw', 'vpc'],
+    ['lb', 'alb', 'vpc'],
     ['app', 'ecs', 'private'],
   ];
   const wires = [
     wired('user', 'request', 'gw', 'request'),
-    wired('gw', 'request', 'app', 'request'),
+    wired('gw', 'request', 'lb', 'request'),
+    wired('lb', 'request', 'app', 'request'),
   ];
 
   it('실패한 실행에서만 요청할 수 있고 요청에 구성이 담긴다', () => {
