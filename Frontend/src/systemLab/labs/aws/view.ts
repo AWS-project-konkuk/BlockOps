@@ -22,6 +22,7 @@ import {
   Megaphone,
   Network,
   Package,
+  Reply,
   Send,
   Server,
   Signpost,
@@ -81,6 +82,7 @@ const shared = {
     image: Package,
     code: FileCode,
     metric: ChartLine,
+    response: Reply,
   },
   tones: {
     request: tone.blue,
@@ -90,6 +92,7 @@ const shared = {
     image: tone.teal,
     code: tone.slate,
     metric: tone.green,
+    response: tone.orange,
   },
   kindColors: {
     internet: kindClass.slate,

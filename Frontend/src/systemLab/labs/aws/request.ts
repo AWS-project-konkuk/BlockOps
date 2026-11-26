@@ -36,3 +36,17 @@ export function incoming(ctx: Parameters<Strategy>[0], label = 'HTTP 요청'): R
 /** 출력 포트에 연결된 선 수. */
 export const fanOut = (ctx: Parameters<Strategy>[0], portId: string) =>
   ctx.graph.connections.filter((e) => e.from.node === ctx.node.id && e.from.port === portId).length;
+
+/** 응답 출력이 연결되어 있으면 처리한 요청 수만큼 응답을 보낸다. 단원 실습의 "응답 확인"이 받는다. */
+export function respond(
+  ctx: Parameters<Strategy>[0],
+  count: number,
+  total = count,
+  extra: Record<string, unknown> = {},
+) {
+  if (!fanOut(ctx, 'out-response')) return;
+  ctx.emit(
+    datum('response', '응답 ' + count + '건', { count, total, from: ctx.node.name, ...extra }),
+    'out-response',
+  );
+}
