@@ -16,6 +16,14 @@
 | 2 | 2 | [route-igw-nat](lessons/02-network/route-igw-nat.mdx) | 라우팅 테이블로 퍼블릭·프라이빗 나누기 |
 | 2 | 3 | [sg-nacl](lessons/02-network/sg-nacl.mdx) | 보안 그룹과 NACL: 어디서 무엇을 검사할까 |
 | 2 | 4 | [network-workflow](lessons/02-network/network-workflow.mdx) | 실습 · 퍼블릭 서브넷의 웹 서버에 닿게 하기 |
+| 3 | 1 | [scaling-ha](lessons/03-availability/scaling-ha.mdx) | 확장성과 고가용성: 더 크게, 더 많이 |
+| 3 | 2 | [alb-asg](lessons/03-availability/alb-asg.mdx) | ALB와 Auto Scaling: 나누고 늘리고 교체하기 |
+| 3 | 3 | [rds-multiaz](lessons/03-availability/rds-multiaz.mdx) | RDS: Multi-AZ와 읽기 복제본 |
+| 3 | 4 | [ha-workflow](lessons/03-availability/ha-workflow.mdx) | 실습 · 트래픽 급증과 가용 영역 장애 버티기 |
+| 4 | 1 | [sqs-queue](lessons/04-decoupling/sqs-queue.mdx) | SQS: 줄을 세워 서비스를 떼어 놓기 |
+| 4 | 2 | [sns-fanout](lessons/04-decoupling/sns-fanout.mdx) | SNS와 Fan-out: 한 번 게시해 여럿이 받기 |
+| 4 | 3 | [kinesis-compare](lessons/04-decoupling/kinesis-compare.mdx) | Kinesis와 메시징 서비스 고르기 |
+| 4 | 4 | [decoupling-workflow](lessons/04-decoupling/decoupling-workflow.mdx) | 실습 · 주문 이벤트를 큐와 주제로 나눠 처리하기 |
 | 5 | 1 | [runtime-overview](lessons/05-container/runtime-overview.mdx) | 단원 개요 |
 | 5 | 2 | [vm-container](lessons/05-container/vm-container.mdx) | VM과 컨테이너의 차이 |
 | 5 | 3 | [docker-commands](lessons/05-container/docker-commands.mdx) | Docker란? |

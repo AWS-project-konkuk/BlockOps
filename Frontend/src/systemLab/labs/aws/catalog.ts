@@ -56,7 +56,10 @@ const serve =
   (ctx) => {
     const data = incoming(ctx);
     if (connected(ctx, 'out-query'))
-      ctx.emit(datum('query', '쿼리 ' + data.count + '건', { count: data.count }), 'out-query');
+      ctx.emit(
+        datum('query', '쿼리 ' + data.count + '건', { count: data.count, total: data.total }),
+        'out-query',
+      );
     if (connected(ctx, 'out-message'))
       ctx.emit(
         datum('message', '메시지 ' + data.count + '건', { count: data.count }),
@@ -76,6 +79,8 @@ const store =
     const items = received(ctx.inputs, material);
     if (!items.length) throw new Error(awsMaterials[material] + ' 입력이 없습니다.');
     const count = items.reduce((sum, item) => sum + Number(item.data.count ?? 1), 0);
+    const total = Math.max(count, ...items.map((item) => Number(item.data.total ?? 0)));
+    respond(ctx, count, total);
     return name + '에서 ' + unit + ' ' + count + '건을 처리했습니다.';
   };
 
@@ -365,6 +370,7 @@ export const awsKinds: Record<Kind, AwsKind> = {
       port('in', 'event', 'event', true),
       port('in', 'message', 'message', true),
       port('out', 'query', 'query'),
+      port('out', 'message', 'message'),
       responsePort,
       port('out', 'metric', 'metric'),
     ],
@@ -384,14 +390,24 @@ export const awsKinds: Record<Kind, AwsKind> = {
       const items = [...received(ctx.inputs, 'event'), ...received(ctx.inputs, 'message')];
       if (!items.length) throw new Error('Lambda를 실행할 이벤트가 없습니다. 트리거를 연결하세요.');
       const count = items.reduce((sum, item) => sum + Number(item.data.count ?? 1), 0);
+      const total = Math.max(count, ...items.map((item) => Number(item.data.total ?? 0)));
+      // 표준 큐에서 한 번 더 전달된 메시지도 함수는 그대로 한 번 더 처리한다.
+      const duplicates = items.reduce((sum, item) => sum + Number(item.data.duplicates ?? 0), 0);
       if (connected(ctx, 'out-query'))
-        ctx.emit(datum('query', '쿼리 ' + count + '건', { count }), 'out-query');
+        ctx.emit(
+          datum('query', '쿼리 ' + (count + duplicates) + '건', { count, total, duplicates }),
+          'out-query',
+        );
+      if (connected(ctx, 'out-message'))
+        ctx.emit(
+          datum('message', '메시지 ' + count + '건', { count, total, duplicates }),
+          'out-message',
+        );
       if (connected(ctx, 'out-metric'))
         ctx.emit(
           datum('metric', 'Lambda 지표', { source: ctx.node.name, requests: count }),
           'out-metric',
         );
-      const total = Math.max(count, ...items.map((item) => Number(item.data.total ?? 0)));
       respond(ctx, count, total);
       return '이벤트 ' + count + '건으로 함수를 실행했습니다.';
     },
@@ -427,7 +443,10 @@ export const awsKinds: Record<Kind, AwsKind> = {
   },
   rds: {
     label: 'RDS',
-    ports: [port('in', 'query', 'query', true)],
+    ports: [
+      port('in', 'query', 'query', true),
+      port('out', 'response', 'response', false, '처리 결과'),
+    ],
     settings: [
       choice('engine', 'DB 엔진', 'postgres', [
         ['postgres', 'PostgreSQL'],
@@ -446,7 +465,10 @@ export const awsKinds: Record<Kind, AwsKind> = {
   },
   dynamodb: {
     label: 'DynamoDB',
-    ports: [port('in', 'query', 'query', true)],
+    ports: [
+      port('in', 'query', 'query', true),
+      port('out', 'response', 'response', false, '처리 결과'),
+    ],
     settings: [
       choice('key', '파티션 키', 'orderId', [
         ['orderId', 'orderId (고르게 분산)'],
@@ -536,7 +558,8 @@ export const awsKinds: Record<Kind, AwsKind> = {
       const items = received(ctx.inputs, 'message');
       if (!items.length) throw new Error('메시지 입력이 없습니다.');
       const count = items.reduce((sum, item) => sum + Number(item.data.count ?? 1), 0);
-      ctx.emit(datum('message', '메시지 ' + count + '건', { count }));
+      const total = Math.max(count, ...items.map((item) => Number(item.data.total ?? 0)));
+      ctx.emit(datum('message', '메시지 ' + count + '건', { count, total }));
       return '메시지 ' + count + '건을 대기열에 넣고 소비자에게 전달했습니다.';
     },
   },
@@ -552,7 +575,8 @@ export const awsKinds: Record<Kind, AwsKind> = {
       const count = items.reduce((sum, item) => sum + Number(item.data.count ?? 1), 0);
       const subscribers = fanOut(ctx, 'out-message');
       if (!subscribers) throw new Error('구독자가 없습니다. 큐나 함수를 구독자로 연결하세요.');
-      ctx.emit(datum('message', '메시지 ' + count + '건', { count }));
+      const total = Math.max(count, ...items.map((item) => Number(item.data.total ?? 0)));
+      ctx.emit(datum('message', '메시지 ' + count + '건', { count, total }));
       return '메시지 ' + count + '건을 구독자 ' + subscribers + '곳에 똑같이 보냈습니다.';
     },
   },

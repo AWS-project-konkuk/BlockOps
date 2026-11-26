@@ -79,6 +79,28 @@ export const workflowViews = {
       end: '웹 서버가 보낸 응답으로 모든 요청이 응답을 받았는지 확인합니다.',
     },
   }),
+  'ha-workflow': workflowView({
+    title: '트래픽 급증과 가용 영역 장애를 버티는 웹 서비스',
+    description:
+      '세일 첫날 요청 `1,000건`이 몰립니다. `웹 ALB`와 `웹 서버 그룹`을 고쳐 모든 요청에 응답하고, `VPC`의 장애 실험으로 가용 영역 하나를 멈춰도 `주문 DB`가 버티게 하세요.',
+    entry:
+      '주문 DB의 처리 결과를 응답 확인에 연결하고 실행하세요. 실패 메시지를 따라 헬스 체크와 조정 정책을 고친 뒤, VPC에서 2c 장애를 켜고 DB를 지키세요.',
+    hints: {
+      start: '요청 1,000건을 HTTPS로 보냅니다.',
+      end: '주문 DB까지 처리된 요청 수로 모든 주문이 완료됐는지 확인합니다.',
+    },
+  }),
+  'decoupling-workflow': workflowView({
+    title: '주문 이벤트를 큐와 주제로 나눠 처리하기',
+    description:
+      '`주문 함수`가 `재고 큐`에만 메시지를 보내고 있습니다. `주문 완료 주제`로 Fan-out해 재고 차감과 메일 발송이 함께 일어나게 하고, 재고는 `한 번씩만` 차감되게 하세요.',
+    entry:
+      '그대로 실행해 빠진 처리를 확인하고, SNS 주제로 두 큐에 나눠 보낸 뒤 재고 큐의 유형을 고치세요.',
+    hints: {
+      start: '주문 API로 요청 100건을 보냅니다.',
+      end: '재고 차감 기록에 중복이 없는지, 메일이 발송됐는지 확인합니다.',
+    },
+  }),
   'week6-workflow': workflowView({
     icons: { gateway: Network, routeTraffic: Network, infer: Cpu, observeResponses: FileText },
     materialIcons: {
