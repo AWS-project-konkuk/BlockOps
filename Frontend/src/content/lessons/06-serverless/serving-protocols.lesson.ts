@@ -4,7 +4,7 @@ import { defineMdxLesson } from '../../defineLesson';
 export default defineMdxLesson({
   id: 'serving-protocols',
   unit: 6,
-  order: 1,
+  order: 3,
   title: 'HTTP와 gRPC는 무엇을 바꿀까',
   summary:
     '모델 추론은 빠른데 서비스 간 직렬화와 통신 비용이 큽니다. 프로토콜을 바꾸기 전에 비용이 어디서 발생하는지 측정합니다.',

@@ -1,0 +1,36 @@
+## 지표를 모두 Prometheus에 연결했는데 왜 실패할까요?
+
+주문 API 서비스(ECS)와 매일 0시에 도는 정산 함수(Lambda)의 지표를 한 대시보드에서 보려고, 둘 다 Prometheus에 연결했습니다. 그런데 수집이 실패합니다. 컨테이너와 함수는 무엇이 다를까요?
+
+<Figure
+  src="images/lessons/07-observability/observe-workflow/intro.svg"
+  alt="ECS 지표는 Prometheus로, Lambda 지표는 CloudWatch로 모아 관측 확인에 보내는 실습 구성"
+  caption="계속 떠 있는 대상은 Pull로, 잠깐 실행되는 함수는 Push로 모읍니다."
+/>
+
+## 준비된 노드
+
+| 노드 | 처음 상태 |
+| --- | --- |
+| **주문 API 서비스**(ECS) | ALB 뒤에서 요청을 처리하고 지표를 Prometheus로 보냅니다. |
+| **매일 정산**(EventBridge) · **정산 함수**(Lambda) | 정해진 시각에 실행되고, 지표가 Prometheus로 연결되어 있습니다. |
+| **앱 지표 수집**(Prometheus) | 연결된 대상에서 지표를 당겨 옵니다(Pull). |
+| **서비스 지표**(CloudWatch) | AWS 서비스가 보내는 지표를 받습니다(Push). 아직 연결되어 있지 않습니다. |
+| **관측 확인** | 컨테이너와 함수의 지표가 모두 대시보드에 들어왔는지 확인합니다. |
+
+## 실습 순서
+
+1. 그대로 실행하고 Prometheus의 실패 메시지를 읽으세요.
+2. **정산 함수**의 지표를 Prometheus에서 떼어 **서비스 지표**(CloudWatch)로 연결하세요.
+3. CloudWatch의 **대시보드**를 **관측 확인**에 연결하고 다시 실행합니다.
+4. 성공하면 CloudWatch의 경보 기준을 낮춰 경보가 울리는지도 확인해 보세요.
+
+<LessonSummary>
+
+Prometheus는 계속 떠 있는 대상에서 주기적으로 지표를 당겨 오는 Pull 방식이라, 잠깐 실행되고 꺼지는 Lambda는 수집할 수 없습니다. 짧게 실행되는 함수와 배치는 CloudWatch 같은 Push 방식으로 지표를 보냅니다. 대상의 실행 방식에 맞춰 수집 경로를 고르면 서로 다른 대시보드를 함께 관측할 수 있습니다.
+
+</LessonSummary>
+
+<Reflection />
+
+<References />

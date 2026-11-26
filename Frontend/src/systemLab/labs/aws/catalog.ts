@@ -610,17 +610,33 @@ export const awsKinds: Record<Kind, AwsKind> = {
   // 관측
   cloudwatch: {
     label: 'CloudWatch',
-    ports: [port('in', 'metric', 'metric', true)],
+    ports: [
+      port('in', 'metric', 'metric', true),
+      port('out', 'metric', 'metric', false, '대시보드'),
+    ],
     settings: [num('threshold', '경보 기준 (요청 수)', 500, 1, 5000)],
     run: (ctx) => {
       const items = received(ctx.inputs, 'metric');
       if (!items.length) throw new Error('수집할 지표가 없습니다.');
+      if (connected(ctx, 'out-metric'))
+        ctx.emit(
+          datum('metric', '대시보드 · 지표 ' + items.length + '종', {
+            source: ctx.node.name,
+            via: ctx.node.kind,
+            sources: items.map((item) => String(item.data.source)),
+            requests: Math.max(0, ...items.map((item) => Number(item.data.requests ?? 0))),
+          }),
+          'out-metric',
+        );
       return '지표 ' + items.length + '종을 수집했습니다.';
     },
   },
   prometheus: {
     label: 'Prometheus',
-    ports: [port('in', 'metric', 'metric', true)],
+    ports: [
+      port('in', 'metric', 'metric', true),
+      port('out', 'metric', 'metric', false, '대시보드'),
+    ],
     settings: [
       choice('interval', '스크랩 간격', '15', [
         ['15', '15초'],
@@ -630,6 +646,16 @@ export const awsKinds: Record<Kind, AwsKind> = {
     run: (ctx) => {
       const items = received(ctx.inputs, 'metric');
       if (!items.length) throw new Error('스크랩할 대상이 없습니다.');
+      if (connected(ctx, 'out-metric'))
+        ctx.emit(
+          datum('metric', '대시보드 · 지표 ' + items.length + '종', {
+            source: ctx.node.name,
+            via: ctx.node.kind,
+            sources: items.map((item) => String(item.data.source)),
+            requests: Math.max(0, ...items.map((item) => Number(item.data.requests ?? 0))),
+          }),
+          'out-metric',
+        );
       return '대상 ' + items.length + '곳의 지표를 당겨 왔습니다(Pull).';
     },
   },

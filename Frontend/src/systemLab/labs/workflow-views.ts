@@ -101,6 +101,48 @@ export const workflowViews = {
       end: '재고 차감 기록에 중복이 없는지, 메일이 발송됐는지 확인합니다.',
     },
   }),
+  'container-workflow': workflowView({
+    title: '빌드한 이미지를 ECS로 서비스하기',
+    description:
+      '`빌드 파이프라인`이 만든 이미지를 `ECR`에 올리고, 프라이빗 서브넷의 `주문 API 서비스`(Fargate)가 받아 요청 `100건`에 응답하게 하세요.',
+    entry:
+      '빌드 → ECR → ECS로 이미지를 잇고 응답을 연결해 실행하세요. 실패 메시지를 따라 서브넷 경로와 ECS 권한을 고칩니다.',
+    hints: {
+      start: 'HTTPS로 요청 100건을 보냅니다.',
+      end: 'ECS 서비스의 응답으로 모든 요청이 응답받았는지 확인합니다.',
+    },
+  }),
+  'serverless-workflow': workflowView({
+    title: '서버 없이 주문 API 만들기',
+    description:
+      '`주문 API`(API Gateway)가 `주문 저장 함수`(Lambda)를 부르고, 함수가 `주문 테이블`(DynamoDB)에 기록하게 하세요. 주문 `100건`이 모두 기록되어야 합니다.',
+    entry: 'API → 함수 → 테이블을 연결해 실행하고, 쓰기가 막히는 이유를 테이블 설정에서 찾으세요.',
+    hints: {
+      start: '/api/orders로 요청 100건을 보냅니다.',
+      end: '주문 테이블까지 기록된 요청 수를 확인합니다.',
+    },
+  }),
+  'observe-workflow': workflowView({
+    title: '컨테이너와 함수의 지표를 한곳에서 보기',
+    description:
+      '`주문 API 서비스`(ECS)와 `정산 함수`(Lambda)의 지표를 모두 대시보드에서 보려고 합니다. 각 지표를 알맞은 수집 방식(`Pull`·`Push`)으로 보내세요.',
+    entry:
+      '그대로 실행해 Prometheus가 실패하는 이유를 확인하고, 함수의 지표를 CloudWatch로 옮기세요.',
+    hints: {
+      start: 'HTTPS로 요청 100건을 보냅니다.',
+      end: '대시보드에 컨테이너와 함수의 지표가 모두 들어왔는지 확인합니다.',
+    },
+  }),
+  'capstone-workflow': workflowView({
+    title: '주문 서비스 장애 진단하기',
+    description:
+      '`shop.example.com`의 주문이 하나도 `주문 DB`에 들어가지 않습니다. 1~7단원에서 배운 대로 실패 메시지를 따라 원인을 하나씩 찾아 고치세요.',
+    entry: '실행할 때마다 처음 실패한 노드와 이유가 나옵니다. 고칠 때마다 다시 실행하세요.',
+    hints: {
+      start: '사용자가 HTTPS로 요청 100건을 보냅니다.',
+      end: '주문 DB까지 처리된 요청 수를 확인합니다.',
+    },
+  }),
   'week6-workflow': workflowView({
     icons: { gateway: Network, routeTraffic: Network, infer: Cpu, observeResponses: FileText },
     materialIcons: {
