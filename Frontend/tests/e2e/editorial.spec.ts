@@ -14,7 +14,7 @@ for (const width of [1600, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
-    for (const id of ['ec2-compute', 'dvc-restore', 'model-drift', 's3-objects']) {
+    for (const id of ['ec2-compute', 'docker-image', 'prometheus', 's3-objects']) {
       await page.goto(`/#/learn/${id}`);
       const article = page.getByTestId('lesson-reading');
       const figure = article.locator('figure').first();
@@ -25,14 +25,14 @@ for (const width of [1600, 390]) {
       expect(
         await article.evaluate((element) => element.scrollWidth <= element.clientWidth + 1),
       ).toBe(true);
-      if (id === 'model-drift')
+      if (id === 'prometheus')
         await figure.screenshot({ path: `test-results/editorial-intro-${width}.png` });
       const recap = article.getByRole('heading', { name: '핵심 정리', exact: true }).locator('..');
       await recap.scrollIntoViewIfNeeded();
       await expect(recap.locator('p').first()).toBeVisible();
       await expect(recap.locator('li')).toHaveCount(1);
       expect((await recap.innerText()).length).toBeGreaterThan(100);
-      if (id === 'dvc-restore')
+      if (id === 'docker-image')
         await recap.screenshot({ path: `test-results/editorial-summary-${width}.png` });
     }
     expect(errors).toEqual([]);

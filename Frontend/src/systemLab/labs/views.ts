@@ -1,7 +1,4 @@
 import type { LabView } from '../labContext';
-import { gpuView } from './gpu/view';
-import { ragView } from './rag/view';
-import { reproduceView } from './reproduce/view';
 import { week2View } from './week2/view';
 import { playgroundView } from './playground-view';
 import { workflowViews } from './workflow-views';
@@ -10,8 +7,5 @@ import { workflowViews } from './workflow-views';
 export const labViews: Readonly<Record<string, LabView>> = {
   ...workflowViews,
   'week2-workflow': week2View,
-  'week4-workflow': reproduceView,
-  'week1-workflow': gpuView,
-  'rag-workflow': ragView,
   playground: playgroundView,
 };

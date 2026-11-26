@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-for (const lessonId of ['s3-objects', 'dvc-restore', 'pv-pvc']) {
+for (const lessonId of ['s3-objects', 'docker-image', 'pv-pvc']) {
   for (const width of [1600, 390]) {
     test(`노드를 끌고 놓은 뒤 위치와 화면이 안정된다 ${lessonId} ${width}`, async ({ page }) => {
       await page.setViewportSize({ width, height: 1000 });

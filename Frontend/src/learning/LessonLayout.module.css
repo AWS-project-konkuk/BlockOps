@@ -610,7 +610,8 @@
 .workflowMap li[data-current='true'] {
   background: var(--color-accent-wash);
 }
-.workflowMap a {
+.workflowMap a,
+.workflowMap li > div {
   display: flex;
   flex-direction: column;
   gap: var(--space-2xs);
@@ -618,6 +619,9 @@
   padding: var(--space-sm);
   color: var(--color-ink-2);
   text-decoration: none;
+}
+.workflowMap li > div {
+  color: var(--color-muted);
 }
 .workflowMap a:hover {
   background: var(--color-paper-3);

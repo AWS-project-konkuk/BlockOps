@@ -47,7 +47,7 @@ export function CourseSidebar({
         </button>
       </header>
       <div className={styles.sidebarIntro}>
-        <strong>MLOps 학습 목차</strong>
+        <strong>DevOps 학습 목차</strong>
         <p>
           전체 지도 + {chapters[0].week}~{chapters[chapters.length - 1].week}단원
         </p>

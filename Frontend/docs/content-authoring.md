@@ -79,7 +79,7 @@ MDX는 기존 React 실습을 원하는 위치에서 사용하는 수단입니�
 
 ### 노드 예제
 
-기존 [DVC 설정](../src/content/lessons/04-reproducibility/dvc-restore.lesson.ts)의 `nodeExample`을 참고하세요. 노드·연결·전달 자료·실패 영향·질문을 정의하고 본문의 원하는 곳에 `<NodeExample />`를 넣습니다. 위치 인덱스를 계산할 필요가 없습니다.
+기존 [이미지 재사용 설정](../src/content/lessons/05-container/docker-image.lesson.ts)의 `nodeExample`을 참고하세요. 노드·연결·전달 자료·실패 영향·질문을 정의하고 본문의 원하는 곳에 `<NodeExample />`를 넣습니다. 위치 인덱스를 계산할 필요가 없습니다.
 
 여러 예제가 필요하면 `<NodeExample spec={...} />`로 각각 전달할 수 있습니다. 각 spec의 `id`는 서로 달라야 저장 기록이 분리됩니다. 긴 구성은 별도 TypeScript 파일에서 export한 뒤 MDX에서 import해도 됩니다. 실제 노드 예제가 있는 문서는 컴파일 시 목차에 표시됩니다.
 

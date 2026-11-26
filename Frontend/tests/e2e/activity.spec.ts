@@ -10,25 +10,15 @@ test.beforeEach(async ({ page }) => {
   );
 });
 
-test('56개 강의에서 공통 프레임과 초기 펼침 상태를 확인한다', async ({ page }) => {
+test('모든 강의에서 공통 프레임과 초기 펼침 상태를 확인한다', async ({ page }) => {
   test.setTimeout(150_000);
   await page.goto('/#/learn');
   const lessons = await readLessons(page);
-  const openByDefault = new Set([
-    'ec2-compute',
-    'vm-container',
-    'storage-compare',
-    'lakehouse-time-travel',
-    'git-large',
-    'git-lfs',
-    'dvc-architecture',
-    'dvc-restore',
-    'feature-store',
-  ]);
+  const openByDefault = new Set(['ec2-compute', 'vm-container', 'storage-compare']);
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  expect(lessons).toHaveLength(56);
-  expect(lessons.filter((lesson) => lesson.activityView)).toHaveLength(29);
+  expect(lessons).toHaveLength(23);
+  expect(lessons.filter((lesson) => lesson.activityView)).toHaveLength(9);
 
   for (const lesson of lessons) {
     await page.goto(`/#/learn/${lesson.id}`);
@@ -55,39 +45,6 @@ test('56개 강의에서 공통 프레임과 초기 펼침 상태를 확인한�
     }
   }
   expect(errors).toEqual([]);
-});
-
-test('마이크로 배치를 줄이고 누적하면 같은 유효 배치의 OOM을 피한다', async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/#/learn/vram-oom');
-  const frame = page.getByTestId('activity-frame');
-  await frame.locator('summary').press('Enter');
-  const activity = frame.getByTestId('inline-activity');
-  await expect(activity.getByRole('status')).toContainText('OOM');
-  await expect(activity.getByText('9.4 / 8 GiB · 유효 배치 32').first()).toBeVisible();
-  await activity.getByRole('button', { name: '8 GiB에서 배치 16 × 2', exact: true }).click();
-  await expect(activity.getByText('6.2 / 8 GiB · 유효 배치 32')).toBeVisible();
-  await expect(activity.getByRole('status')).toContainText('VRAM 안에 들어갑니다');
-  const batch = activity.getByRole('spinbutton', { name: '마이크로 배치' });
-  await batch.fill('1000');
-  await expect(batch).toHaveAttribute('aria-invalid', 'true');
-  await expect(activity.getByText('6.2 / 8 GiB · 유효 배치 32')).toBeVisible();
-  await batch.blur();
-  await expect(batch).toHaveValue('16');
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
-});
-
-test('같은 질문에서 문구 검색과 거리 검색을 전환한다', async ({ page }) => {
-  await page.goto('/#/learn/vector-search');
-  await page.getByTestId('activity-frame').locator('summary').press('Enter');
-  const activity = page.getByTestId('inline-activity');
-  const options = activity.getByRole('group', { name: '검색 기준' });
-  await expect(activity.getByTestId('activity-result')).toContainText(
-    '문구를 포함한 문서가 없습니다',
-  );
-  await options.getByRole('button', { name: '예시 벡터 거리', exact: true }).click();
-  await expect(activity.getByTestId('activity-result')).toContainText('사과 · 바나나');
 });
 
 test('Prometheus의 수집 간격을 줄이면 짧은 지연을 찾는다', async ({ page }) => {

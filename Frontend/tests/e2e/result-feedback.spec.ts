@@ -11,7 +11,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('정답·오답은 제출 뒤 색상과 아이콘으로 구분하고 동작 줄이기를 존중한다', async ({ page }) => {
-  await page.goto('/#/learn/mlops-overview');
+  await page.goto('/#/learn/container-isolation');
   const quiz = page.getByLabel('이해 확인', { exact: true });
   await quiz.getByRole('radio').nth(1).check();
   await expect(quiz.locator('[data-feedback]')).toHaveCount(0);
@@ -39,7 +39,7 @@ test('정답·오답은 제출 뒤 색상과 아이콘으로 구분하고 동작
 });
 
 test('선택 활동과 본문 노드 학습을 테두리로 구분하고 연결 판정도 강조한다', async ({ page }) => {
-  await page.goto('/#/learn/cpu-gpu');
+  await page.goto('/#/learn/canary');
   const optional = page.getByTestId('activity-frame');
   expect(await optional.evaluate((el) => getComputedStyle(el).borderRightStyle)).toBe('solid');
   expect(
@@ -73,22 +73,4 @@ test('선택 활동과 본문 노드 학습을 테두리로 구분하고 연결 
   await example
     .locator('[data-feedback="success"]')
     .screenshot({ path: 'test-results/feedback-connection-correct.png' });
-});
-
-test('실습 실행 단계의 성공과 실패를 표시한다', async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/#/learn/week5-workflow');
-  await page.getByRole('button', { name: '실습 시작하기', exact: true }).click();
-  await page.getByRole('button', { name: '3. 새로운 상황 구성' }).click();
-  await page.getByRole('button', { name: '단계 실행', exact: true }).click();
-  const status = page.getByLabel('현재 데이터 흐름');
-  await expect(status).toHaveAttribute('data-result', 'success');
-  for (let i = 0; i < 6 && (await status.getAttribute('data-result')) === 'success'; i++)
-    await page.getByRole('button', { name: '다음 단계', exact: true }).click();
-  await expect(status).toHaveAttribute('data-result', 'failed');
-  await expect(status).toContainText('단계 실패');
-  await page.getByRole('button', { name: '설정·결과 열기', exact: true }).click();
-  await expect(
-    page.getByTestId('weekly-inspector').locator('[data-feedback="error"]'),
-  ).toContainText('입력');
 });

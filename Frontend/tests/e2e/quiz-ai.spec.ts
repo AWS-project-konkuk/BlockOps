@@ -20,7 +20,7 @@ test('퀴즈 AI 요청의 입력·로딩·응답·오류·재시도와 이전 �
     const body = route.request().postDataJSON();
     expect(route.request().method()).toBe('POST');
     expect(body).toEqual({
-      lessonId: 'mlops-overview',
+      lessonId: 'container-isolation',
       question: expect.any(String),
       options: expect.arrayContaining([expect.any(String), expect.any(String)]),
       correct: expect.any(Number),
@@ -58,7 +58,7 @@ test('퀴즈 AI 요청의 입력·로딩·응답·오류·재시도와 이전 �
         },
       });
   });
-  await page.goto('/#/learn/mlops-overview');
+  await page.goto('/#/learn/container-isolation');
   const quiz = page.getByLabel('이해 확인', { exact: true });
   const button = quiz.getByRole('button', { name: 'AI에게 요청하기', exact: true });
   await expect(button).toBeDisabled();
@@ -106,7 +106,7 @@ test('지연 응답은 입력 변경 및 강의 이동 후 표시하지 않는�
       })
       .catch(() => {});
   });
-  await page.goto('/#/learn/mlops-overview');
+  await page.goto('/#/learn/container-isolation');
   const quiz = page.getByLabel('이해 확인', { exact: true });
   await quiz.getByRole('radio').nth(0).check();
   await quiz.getByLabel('선택한 이유', { exact: true }).fill('이유');
@@ -114,7 +114,7 @@ test('지연 응답은 입력 변경 및 강의 이동 후 표시하지 않는�
   await expect(quiz.getByText('AI가 선택한 이유를 검토하고 있습니다.')).toBeVisible();
   await quiz.getByLabel('선택한 이유', { exact: true }).fill('수정한 이유');
   await expect(quiz.getByRole('button', { name: 'AI에게 요청하기' })).toBeEnabled();
-  await page.goto('/#/learn/cpu-gpu');
+  await page.goto('/#/learn/canary');
   release();
   await expect(page.getByText('이전 요청의 답변')).toHaveCount(0);
 });

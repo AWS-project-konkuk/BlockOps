@@ -36,8 +36,10 @@ export function LessonArticle({
         <p className={styles.lead}>{lesson.summary}</p>
         <div className={styles.documentMeta}>
           <span>{chapterLabel(lesson.week)}</span>
-          <span>MLOps</span>
-          <span>원문 {lesson.sourceWeek ?? lesson.week}주차</span>
+          <span>DevOps</span>
+          {lesson.sourceWeek && (
+            <span>워크북 {lesson.sourceWeek <= 7 ? `${lesson.sourceWeek}차시` : '보충'}</span>
+          )}
           <span>
             <Clock3 size={14} />약 {lesson.minutes}분
           </span>

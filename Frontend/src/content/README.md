@@ -12,9 +12,9 @@
 ## 먼저 열어볼 문서
 
 - [강의 목록](lesson-index.md)
-- [EC2 본문: 연습 문제와 해설](lessons/00-overview/ec2-compute.mdx)
-- [이미지 예시](lessons/02-runtime/container-isolation.mdx)
-- [코드와 노드 예제](lessons/04-reproducibility/dvc-restore.mdx)
+- [EC2 본문: 연습 문제와 해설](lessons/00-cloud/ec2-compute.mdx)
+- [이미지 예시](lessons/05-container/container-isolation.mdx)
+- [코드와 노드 예제](lessons/05-container/docker-image.mdx)
 - [본문 템플릿](templates/new-lesson.mdx) · [설정 템플릿](templates/new-lesson.ts)
 - [문법과 실습 컴포넌트 안내](../../docs/content-authoring.md)
 
@@ -23,11 +23,11 @@
 1. 두 템플릿을 `lessons/`의 원하는 단원 폴더에 복사합니다.
 2. 파일명을 `my-topic.mdx`, `my-topic.lesson.ts`로 맞추고 설정의 `id`도 `my-topic`으로 지정합니다.
 3. 설정의 import 경로를 `../../defineLesson`으로 바꿉니다. 팩토리 이름은 `defineMdxLesson`입니다.
-4. `unit`, `order`, `title`, `summary`, `scenario`, `assessment`를 작성합니다. 1단원 2번과 3번 사이에는 `unit: 1, order: 2.5`를 사용합니다.
+4. `unit`, `order`, `title`, `summary`, `scenario`, `assessment`를 작성합니다. 5단원 2번과 3번 사이에는 `unit: 5, order: 2.5`를 사용합니다.
 5. MDX에 본문을 쓰고 `<Quiz />`를 배치합니다. 필요한 경우 `<NodeExample />`, `<Activity />` 등을 추가합니다.
 6. 개발 서버에서 `/#/learn/my-topic`을 확인하고 `npm run build`, `npm test`를 실행합니다.
 
-폴더는 문서 정리용이며 실제 단원·순서는 설정의 `unit`, `order`로 결정됩니다. 템플릿 폴더는 강의 목록에 등록되지 않습니다. 배포 사이트는 새 빌드·배포 후 갱신됩니다.
+실제 단원·순서는 설정의 `unit`, `order`로 결정됩니다. 폴더 번호는 단원 번호와 맞춥니다(예: 5단원은 `05-container`). 템플릿 폴더는 강의 목록에 등록되지 않습니다. 배포 사이트는 새 빌드·배포 후 갱신됩니다.
 
 ## 강의 첫 화면의 문구
 

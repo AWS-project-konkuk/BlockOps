@@ -164,14 +164,14 @@ test('다른 단원의 실습도 실패 후 자신의 강의 ID로 조언을 요
       },
     });
   });
-  const lab = await openLab(page, 'week3-workflow');
+  const lab = await openLab(page, 'week6-workflow');
   await lab.getByRole('button', { name: '실행 결과 펼치기' }).click();
   await lab.getByRole('button', { name: '실습 실행', exact: true }).click();
   const panel = lab.getByRole('region', { name: '실습 AI 조언', exact: true });
   await expect(panel.getByRole('button', { name: 'AI 조언 받기', exact: true })).toBeEnabled();
   await panel.getByRole('button', { name: 'AI 조언 받기', exact: true }).click();
   await expect(panel.getByLabel('AI 조언 결과')).toContainText('배치 준비 설정을 확인했나요?');
-  expect(lessonId).toBe('week3-workflow');
+  expect(lessonId).toBe('week6-workflow');
 });
 
 test('실행 도중과 중단 상태에서는 조언을 요청할 수 없다', async ({ page }) => {

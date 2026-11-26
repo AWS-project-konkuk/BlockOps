@@ -57,9 +57,9 @@ function Header({ isCourse }: { isCourse: boolean }) {
             <GraduationCap size={24} />
           </span>
           <strong>
-            Block<span>ML</span>
+            Block<span>Ops</span>
           </strong>
-          <small>MLOps 학습실</small>
+          <small>DevOps 학습실</small>
         </Link>
         <nav>
           <Link to="/learn" aria-current={isCourse ? 'page' : undefined}>
@@ -138,11 +138,11 @@ function LearningHub() {
       <section className={styles.hero}>
         <div>
           <h1>
-            MLOps, 하나씩 이해하고
+            DevOps, 하나씩 이해하고
             <br />
             직접 해결해 보세요.
           </h1>
-          <p>AWS 기초부터 모델 운영까지, 읽고 연결하며 전체 흐름을 익힙니다.</p>
+          <p>EC2부터 컨테이너·서버리스·배포까지, 읽고 연결하며 AWS 구조를 익힙니다.</p>
           <Link className={styles.primary} to={lessonPath(next.id)}>
             {count ? '이어서 학습하기' : '첫 강의 시작하기'}
             <ArrowRight size={16} />
@@ -215,7 +215,7 @@ function LearningHub() {
       <section id="curriculum" className={styles.curriculum}>
         <div className={styles.curriculumHeading}>
           <div>
-            <h2>필수 기초부터 MLOps의 전체 흐름까지</h2>
+            <h2>클라우드 기초부터 DevOps의 전체 구조까지</h2>
             <p>
               설명 중심 학습과 선택 활동·워크플로·종합 과제로 총 {lessons.length}개 강의를
               학습합니다.
@@ -345,7 +345,7 @@ function LearningHub() {
         )}
       </section>
       <footer className={styles.siteFooter}>
-        <span>BlockOps, 연결하며 배우는 MLOps</span>
+        <span>BlockOps, 연결하며 배우는 DevOps</span>
         <span>학습자를 위한 개념 실습. 실제 클라우드 비용 없음</span>
       </footer>
     </main>
@@ -392,7 +392,7 @@ function PageTitle({ title }: { title: string }) {
 function CourseRoute() {
   return (
     <>
-      <PageTitle title="BlockOps | MLOps 학습 과정" />
+      <PageTitle title="BlockOps | DevOps 학습 과정" />
       <LearningHub />
     </>
   );
