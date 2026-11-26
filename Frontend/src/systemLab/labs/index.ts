@@ -1,5 +1,7 @@
 import type { LabConfig } from '../lab';
+import { cdnLab } from './cdn';
 import { introWorkflowLab } from './intro-workflow';
+import { networkLab } from './network';
 import { playgroundLab } from './playground';
 import { transitionLab } from './transition';
 import { week2Lab } from './week2';
@@ -7,6 +9,8 @@ import { week2Lab } from './week2';
 /** 시스템 실습을 쓰는 강의 ID와 설정. 전환한 강의는 여기에 등록한다. */
 export const labConfigs: Readonly<Record<string, LabConfig>> = {
   [introWorkflowLab.id]: introWorkflowLab,
+  [cdnLab.id]: cdnLab,
+  [networkLab.id]: networkLab,
   [week2Lab.id]: week2Lab,
   [transitionLab.id]: transitionLab,
 };

@@ -33,7 +33,7 @@ describe('레슨 편집 기준', () => {
   });
 
   it('모든 레슨의 첫 문제 제기 뒤에 설명이 있는 도입 이미지를 제공한다', () => {
-    expect(Object.keys(sources)).toHaveLength(23);
+    expect(Object.keys(sources)).toHaveLength(lessonDocuments.length);
     for (const [path, source] of Object.entries(sources)) {
       const secondHeading = source.indexOf('\n## ', source.indexOf('## ') + 3);
       const opening = source.slice(0, secondHeading);

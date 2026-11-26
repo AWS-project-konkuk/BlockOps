@@ -7,7 +7,14 @@ import { emptyLearning, parseLearning, serializeLearning } from '../src/learning
 describe('설명 중심 학습과 과거 기록의 경계', () => {
   it('모든 강의가 독립적인 이해 확인 또는 워크플로 평가를 가진다', () => {
     expect(new Set(lessons.map((l) => l.id)).size).toBe(lessons.length);
-    expect(chapters.map((c) => c.week)).toEqual([0, 1, 5, 6, 7, 9]);
+    for (const chapter of chapters)
+      expect(
+        lessons.some((l) => l.week === chapter.week),
+        String(chapter.week),
+      ).toBe(true);
+    expect(chapters.map((c) => c.week)).toEqual(
+      [...chapters.map((c) => c.week)].sort((a, b) => a - b),
+    );
     for (const lesson of lessons) {
       expect(lesson.assessment || lesson.workflow).toBeTruthy();
       expect(lesson.mapStages?.length).toBeGreaterThan(0);
