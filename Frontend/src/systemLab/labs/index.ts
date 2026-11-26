@@ -1,9 +1,13 @@
 import type { LabConfig } from '../lab';
 import { availabilityLab } from './availability';
+import { capstoneLab } from './capstone';
 import { cdnLab } from './cdn';
+import { containerLab } from './container';
 import { decouplingLab } from './decoupling';
 import { introWorkflowLab } from './intro-workflow';
 import { networkLab } from './network';
+import { observeLab } from './observe';
+import { serverlessLab } from './serverless';
 import { playgroundLab } from './playground';
 import { transitionLab } from './transition';
 import { week2Lab } from './week2';
@@ -15,6 +19,10 @@ export const labConfigs: Readonly<Record<string, LabConfig>> = {
   [networkLab.id]: networkLab,
   [availabilityLab.id]: availabilityLab,
   [decouplingLab.id]: decouplingLab,
+  [containerLab.id]: containerLab,
+  [serverlessLab.id]: serverlessLab,
+  [observeLab.id]: observeLab,
+  [capstoneLab.id]: capstoneLab,
   [week2Lab.id]: week2Lab,
   [transitionLab.id]: transitionLab,
 };

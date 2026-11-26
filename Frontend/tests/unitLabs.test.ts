@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { applyCommand, type Command } from '../src/systemLab/commands';
 import { runLab } from '../src/systemLab/engine';
 import type { Connection, Graph, LabConfig, SettingValue } from '../src/systemLab/lab';
-import { labFor } from '../src/systemLab/labs';
+import { labConfigs, labFor } from '../src/systemLab/labs';
 import { parseSaved } from '../src/systemLab/store';
 
 /** 단원 종합 실습을 학습자가 푸는 순서대로 따라가며 실패와 해결을 확인한다. */
@@ -53,7 +53,7 @@ describe('1단원 · 비공개 S3를 CloudFront로 배포하기', () => {
 
 describe('단원 종합 실습 공통', () => {
   it('초기 그래프와 관찰을 저장 형식으로 복원한다', () => {
-    for (const id of ['cdn-workflow', 'network-workflow', 'ha-workflow', 'decoupling-workflow']) {
+    for (const id of Object.keys(labConfigs)) {
       const config = lab(id);
       const graph = config.initial();
       const restored = parseSaved(
@@ -132,5 +132,75 @@ describe('4단원 · 주문 이벤트를 큐와 주제로 나눠 처리하기', 
     expect(result.success).toBe(true);
     expect(metric(result, '중복 차감')).toBe('0건');
     expect(metric(result, '메일 발송')).toBe('100건');
+  });
+});
+
+describe('5단원 · 빌드한 이미지를 ECS로 서비스하기', () => {
+  const config = lab('container-workflow');
+  it('외부 경로와 태스크 역할을 고쳐 이미지를 받아 응답한다', () => {
+    let graph = apply(config, config.initial(), ...connect(config.starterTasks));
+    let result = run(config, graph);
+    expect(result.observations).toEqual(['image-pull-failed']);
+    graph = apply(config, graph, set('app', 'route', 'nat'));
+    result = run(config, graph);
+    expect(result.observations).toEqual(['shared-role']);
+    graph = apply(config, graph, set('api', 'role', 'task'));
+    result = run(config, graph);
+    expect(result.success).toBe(true);
+    expect(result.steps.find((s) => s.node === 'api')?.message).toContain('app:v2');
+  });
+});
+
+describe('6단원 · 서버 없이 주문 API 만들기', () => {
+  const config = lab('serverless-workflow');
+  it('날짜 파티션 키의 쓰기 몰림을 고르게 퍼지는 키로 고친다', () => {
+    let graph = apply(config, config.initial(), ...connect(config.starterTasks));
+    let result = run(config, graph);
+    expect(result.observations).toEqual(['hot-partition']);
+    expect(result.success).toBe(false);
+    graph = apply(config, graph, set('orders', 'key', 'orderId'));
+    result = run(config, graph);
+    expect(result.success).toBe(true);
+    expect(metric(result, '받은 응답')).toBe('100건');
+  });
+});
+
+describe('7단원 · 컨테이너와 함수의 지표를 한곳에서 보기', () => {
+  const config = lab('observe-workflow');
+  it('Lambda 지표를 CloudWatch로 옮겨 두 대시보드에서 모두 본다', () => {
+    let graph = config.initial();
+    let result = run(config, graph);
+    expect(result.observations).toEqual(['pull-mismatch']);
+    graph = apply(
+      config,
+      graph,
+      disconnect(graph.connections.find((e) => e.from.node === 'settle')!),
+      ...connect(config.starterTasks),
+    );
+    result = run(config, graph);
+    expect(result.success).toBe(true);
+    expect(metric(result, '대시보드')).toBe('앱 지표 수집, 서비스 지표');
+  });
+});
+
+describe('8단원 · 주문 서비스 장애 진단하기', () => {
+  const config = lab('capstone-workflow');
+  it('헬스 체크·리스너·이미지 경로를 차례로 고쳐 주문을 DB에 넣는다', () => {
+    let graph = config.initial();
+    const steps: string[][] = [];
+    for (const fix of [
+      set('lb', 'health', '/health'),
+      set('lb', 'listener', 'https'),
+      set('app', 'route', 'nat'),
+    ]) {
+      steps.push(run(config, graph).observations);
+      graph = apply(config, graph, fix);
+    }
+    expect(steps[0]).toContain('health-failed');
+    expect(steps[1]).toContain('listener-mismatch');
+    expect(steps[2]).toEqual(['image-pull-failed']);
+    const result = run(config, graph);
+    expect(result.success).toBe(true);
+    expect(metric(result, '받은 응답')).toBe('100건');
   });
 });

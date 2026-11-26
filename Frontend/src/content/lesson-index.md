@@ -33,12 +33,21 @@
 | 5 | 7 | [k8s-control-traffic](lessons/05-container/k8s-control-traffic.mdx) | Pod 배치와 요청 전달의 경로 나누기 |
 | 5 | 8 | [storage-lifecycle](lessons/05-container/storage-lifecycle.mdx) | 파일의 lifecycle과 공유 조건 판단하기 |
 | 5 | 9 | [pv-pvc](lessons/05-container/pv-pvc.mdx) | PV와 PVC로 Pod 밖의 데이터 연결 |
-| 5 | 10 | [week2-workflow](lessons/05-container/week2-workflow.mdx) | 실습 · 학습된 모델을 Pod 안에서 서비스하기 |
-| 6 | 1 | [serving-protocols](lessons/06-serverless/serving-protocols.mdx) | HTTP와 gRPC는 무엇을 바꿀까 |
+| 5 | 10 | [ecr-ecs](lessons/05-container/ecr-ecs.mdx) | AWS에서 컨테이너 실행하기: ECR·ECS·EKS |
+| 5 | 11 | [week2-workflow](lessons/05-container/week2-workflow.mdx) | 실습 · 학습된 모델을 Pod 안에서 서비스하기 |
+| 5 | 12 | [container-workflow](lessons/05-container/container-workflow.mdx) | 실습 · 빌드한 이미지를 ECS로 서비스하기 |
+| 6 | 1 | [lambda-basics](lessons/06-serverless/lambda-basics.mdx) | 서버리스와 Lambda: 필요할 때만 실행하기 |
+| 6 | 2 | [apigw-dynamodb](lessons/06-serverless/apigw-dynamodb.mdx) | API Gateway와 DynamoDB로 서버리스 백엔드 만들기 |
+| 6 | 3 | [serving-protocols](lessons/06-serverless/serving-protocols.mdx) | HTTP와 gRPC는 무엇을 바꿀까 |
+| 6 | 4 | [serverless-workflow](lessons/06-serverless/serverless-workflow.mdx) | 실습 · 서버 없이 주문 API 만들기 |
 | 7 | 1 | [observability-signals](lessons/07-observability/observability-signals.mdx) | 지표·로그·트레이스로 하나의 요청 조사하기 |
 | 7 | 2 | [prometheus](lessons/07-observability/prometheus.mdx) | Prometheus로 지표를 수집하기 |
-| 9 | 1 | [recreate-release](lessons/09-delivery/recreate-release.mdx) | 중단 배포에서 요청은 어떻게 될까 |
-| 9 | 2 | [blue-green](lessons/09-delivery/blue-green.mdx) | Blue·Green: 준비 후 한 번에 전환 |
-| 9 | 3 | [canary](lessons/09-delivery/canary.mdx) | Canary: 일부 실제 요청부터 |
-| 9 | 4 | [shadow](lessons/09-delivery/shadow.mdx) | Shadow: 요청은 복제, 응답은 기존 모델 |
-| 9 | 5 | [week6-workflow](lessons/09-delivery/week6-workflow.mdx) | 사용자 응답을 지키며 모델 전환하기 |
+| 7 | 3 | [observe-workflow](lessons/07-observability/observe-workflow.mdx) | 실습 · 컨테이너와 함수의 지표를 한곳에서 보기 |
+| 8 | 1 | [architecture-overview](lessons/08-capstone/architecture-overview.mdx) | 1~7단원 한 장으로 연결하기 |
+| 8 | 2 | [capstone-workflow](lessons/08-capstone/capstone-workflow.mdx) | 실습 · 주문 서비스 장애 진단하기 |
+| 9 | 1 | [cicd-pipeline](lessons/09-delivery/cicd-pipeline.mdx) | CI/CD: 커밋에서 배포까지 자동으로 |
+| 9 | 2 | [recreate-release](lessons/09-delivery/recreate-release.mdx) | 중단 배포에서 요청은 어떻게 될까 |
+| 9 | 3 | [blue-green](lessons/09-delivery/blue-green.mdx) | Blue·Green: 준비 후 한 번에 전환 |
+| 9 | 4 | [canary](lessons/09-delivery/canary.mdx) | Canary: 일부 실제 요청부터 |
+| 9 | 5 | [shadow](lessons/09-delivery/shadow.mdx) | Shadow: 요청은 복제, 응답은 기존 모델 |
+| 9 | 6 | [week6-workflow](lessons/09-delivery/week6-workflow.mdx) | 사용자 응답을 지키며 모델 전환하기 |
