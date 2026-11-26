@@ -1,0 +1,292 @@
+import { defineMdxLesson } from '../../defineLesson';
+
+// 강의 설정과 실습 구성입니다. 본문은 같은 이름의 .mdx에서 작성합니다.
+export default defineMdxLesson({
+  id: 'data-parallel',
+  unit: 4,
+  order: 5,
+  title: '데이터 병렬: 모델은 복제, 데이터는 분할',
+  summary: '각 GPU가 다른 데이터를 처리하고 기울기를 동기화합니다.',
+  scenario:
+    '노드 예제에서 배치가 어느 복제본으로 가고 기울기가 어디에 모이는지 따라갑니다. GPU 수와 통신 비용을 바꿔, 장치를 더 써도 학습 시간이 기대만큼 줄지 않는 조건을 확인해 보세요.',
+  concepts: ['데이터 분할', 'GPU 1 모델 복제', 'GPU 2 모델 복제', '기울기 동기화'],
+  assessment: {
+    question: '일반 데이터 병렬에서 각 GPU가 가지는 모델은?',
+    options: ['전체 모델의 서로 다른 레이어 하나씩', '동일한 전체 모델의 복제본'],
+    correct: 1,
+    explanation:
+      '데이터 병렬은 데이터를 나누고 모델은 복제합니다. 각 GPU가 계산한 기울기를 All-Reduce로 평균내 모든 복제본을 같은 값으로 갱신합니다. 각 GPU가 모델 상태 전체를 가지므로 모델이 한 GPU에 들어가지 않는 문제는 해결하지 못합니다.',
+  },
+  advanced: [
+    {
+      title: '심화 · Ring All-Reduce',
+      body: 'GPU N장이 기울기를 평균낼 때, 한 곳에 모았다 나눠 주면 그 한 곳이 병목이 됩니다. Ring All-Reduce는 GPU를 원형으로 연결하고 기울기를 N조각으로 나누어 이웃에게만 조각을 넘기며 더해 갑니다. 이 방식에서 GPU 한 장이 보내는 데이터량은 GPU 수가 늘어도 기울기 크기의 약 2배로 거의 일정합니다. NCCL은 연결 구조에 맞춰 링·트리 알고리즘을 골라 씁니다.',
+    },
+    {
+      title: '심화 · ZeRO와 FSDP',
+      body: '일반 데이터 병렬은 모든 GPU가 같은 가중치·기울기·옵티마이저 상태를 중복 보관합니다. ZeRO는 이 중복을 단계적으로 없앱니다. 1단계는 옵티마이저 상태, 2단계는 기울기까지, 3단계는 가중치까지 GPU마다 나누어 갖습니다. PyTorch의 FSDP는 3단계에 해당하며, 계산할 레이어의 가중치만 그때그때 모아 쓰고 다시 버립니다. 메모리는 GPU 수에 비례해 줄지만 통신이 늘어납니다.',
+    },
+  ],
+  caution:
+    '데이터 병렬은 데이터를 나누며 모델은 복제합니다. 평균내는 것은 가중치가 아니라 기울기이며, 메모리 부족을 자동으로 해결하지 않습니다.',
+  reflection:
+    'GPU를 2장에서 8장으로 늘렸는데 학습 속도는 2.5배만 빨라졌습니다. 어떤 비용을 의심하고 무엇을 측정하겠습니까?',
+  references: [
+    {
+      title: '원문 · MLOps 3주차 · 실제 도구 실습',
+      url: 'https://www.notion.so/5f3ebb1cb38a83f4a40181082cca16c0',
+    },
+    {
+      title: '공식 자료 · PyTorch DDP 튜토리얼',
+      url: 'https://docs.pytorch.org/tutorials/intermediate/ddp_tutorial.html',
+    },
+    {
+      title: '공식 자료 · PyTorch 분산 학습 개요',
+      url: 'https://docs.pytorch.org/tutorials/beginner/dist_overview.html',
+    },
+    {
+      title: '논문 · ZeRO (모델 상태 분할)',
+      url: 'https://arxiv.org/abs/1910.02054',
+    },
+  ],
+  sourceWeek: 3,
+  mapStages: ['training'],
+  nodeExample: {
+    id: 'gradient-sync',
+    title: '데이터를 나눠 계산한 뒤 무엇을 모을까',
+    prompt:
+      '각 GPU에는 전체 모델이 복제되어 있다고 가정합니다. 서로 다른 데이터로 구한 기울기를 모으는 흐름을 확인하세요.',
+    nodes: [
+      {
+        id: 'gpu1',
+        title: 'GPU 1 · 모델 복제본',
+        purpose: '표본 A로 기울기 g1을 계산합니다.',
+        x: 0,
+        y: 0,
+      },
+      {
+        id: 'gpu2',
+        title: 'GPU 2 · 모델 복제본',
+        purpose: '표본 B로 기울기 g2를 계산합니다.',
+        x: 0,
+        y: 260,
+      },
+      {
+        id: 'sync',
+        title: '기울기 동기화',
+        purpose: '각 기울기를 집계해 같은 업데이트에 사용합니다.',
+        x: 350,
+        y: 110,
+      },
+    ],
+    links: [
+      {
+        id: 'gpu1-sync',
+        source: 'gpu1',
+        target: 'sync',
+        label: '기울기 g1',
+        detail: 'GPU 1의 계산 결과를 동기화에 전달합니다.',
+        material: 'gradient',
+      },
+      {
+        id: 'gpu2-sync',
+        source: 'gpu2',
+        target: 'sync',
+        label: '기울기 g2',
+        detail:
+          'GPU 2의 결과도 집계에 필요합니다. 실제 All-Reduce 통신 구조를 단순화한 그림입니다.',
+        material: 'gradient',
+      },
+    ],
+    practiceHint:
+      '두 번째 GPU의 기울기도 집계에 포함하세요. 모델 상태를 두 GPU에 반으로 나눈 그림이 아닙니다.',
+    nextLesson: 'week1-workflow',
+    kind: '자료 전달',
+    afterSection: 1,
+  },
+  activityView: {
+    type: 'parallel',
+    title: 'GPU를 늘리면 전체 모델도 나뉠까요?',
+    instruction: 'GPU 수를 늘려 복제된 모델의 장치당 메모리와 기울기 동기화 비용을 비교하세요.',
+  },
+  activity: {
+    kind: 'parallel',
+    variant: 'data',
+    fields: [
+      {
+        id: 'gpus',
+        label: 'GPU 수',
+        initial: 2,
+        min: 1,
+        max: 8,
+        step: 1,
+        help: 'GPU 수를 늘려 통신 비용과 함께 비교합니다.',
+      },
+      {
+        id: 'vram',
+        label: 'GPU당 VRAM (GiB)',
+        initial: 16,
+        min: 4,
+        max: 80,
+        step: 1,
+        help: 'GPU당 용량이며 단순 합산과 다릅니다.',
+      },
+      {
+        id: 'model',
+        label: '모델 메모리 (GiB)',
+        initial: 24,
+        min: 4,
+        max: 96,
+        step: 1,
+        help: '학습 상태까지 포함한 예시 크기입니다.',
+      },
+      {
+        id: 'work',
+        label: '작업 크기',
+        initial: 64,
+        min: 8,
+        max: 256,
+        step: 1,
+        help: '동일 작업의 분할을 비교합니다.',
+      },
+      {
+        id: 'communication',
+        label: '통신 비용',
+        initial: 4,
+        min: 0,
+        max: 32,
+        step: 1,
+        help: '동기화·중간 결과 전송에 드는 상대 시간입니다.',
+      },
+    ],
+    question: '일반 데이터 병렬에서 각 GPU가 가지는 모델은?',
+    options: [
+      {
+        value: 'b',
+        label: '전체 모델의 서로 다른 레이어 하나씩',
+      },
+      {
+        value: 'a',
+        label: '동일한 전체 모델의 복제본',
+      },
+    ],
+    correct: 'a',
+    explanation: '데이터를 나누며 모델은 복제합니다. 메모리 부족을 자동 해결하지 않습니다.',
+    task: '모델 크기를 VRAM 안팎으로 바꾸고 GPU 수·통신 비용을 비교하세요.',
+  },
+  practice: 'interactive',
+  experiment: '흐름 확인',
+  nodes: [
+    {
+      id: 'n0',
+      title: '데이터 분할',
+      detail: '데이터 병렬: 모델은 복제, 데이터는 분할 · 1번째 구성 요소',
+      tone: '#9d85d7',
+    },
+    {
+      id: 'n1',
+      title: 'GPU 1 모델 복제',
+      detail: '데이터 병렬: 모델은 복제, 데이터는 분할 · 2번째 구성 요소',
+      tone: '#9d85d7',
+    },
+    {
+      id: 'n2',
+      title: 'GPU 2 모델 복제',
+      detail: '데이터 병렬: 모델은 복제, 데이터는 분할 · 3번째 구성 요소',
+      tone: '#9d85d7',
+    },
+    {
+      id: 'n3',
+      title: '기울기 동기화',
+      detail: '데이터 병렬: 모델은 복제, 데이터는 분할 · 4번째 구성 요소',
+      tone: '#9d85d7',
+    },
+  ],
+  fields: [
+    {
+      id: 'gpus',
+      label: 'GPU 수',
+      initial: 2,
+      min: 1,
+      max: 8,
+      step: 1,
+      help: 'GPU 수를 늘려 통신 비용과 함께 비교합니다.',
+    },
+    {
+      id: 'vram',
+      label: 'GPU당 VRAM (GiB)',
+      initial: 16,
+      min: 4,
+      max: 80,
+      step: 1,
+      help: 'GPU당 용량이며 단순 합산과 다릅니다.',
+    },
+    {
+      id: 'model',
+      label: '모델 메모리 (GiB)',
+      initial: 24,
+      min: 4,
+      max: 96,
+      step: 1,
+      help: '학습 상태까지 포함한 예시 크기입니다.',
+    },
+    {
+      id: 'work',
+      label: '작업 크기',
+      initial: 64,
+      min: 8,
+      max: 256,
+      step: 1,
+      help: '동일 작업의 분할을 비교합니다.',
+    },
+    {
+      id: 'communication',
+      label: '통신 비용',
+      initial: 4,
+      min: 0,
+      max: 32,
+      step: 1,
+      help: '동기화·중간 결과 전송에 드는 상대 시간입니다.',
+    },
+  ],
+  goals: [
+    {
+      id: 'n0-n1',
+      kind: 'edge',
+      from: 'n0',
+      to: 'n1',
+      label: '데이터 분할 → GPU 1 모델 복제',
+      hint: '설명의 입력·출력과 화살표 방향을 확인하세요.',
+    },
+    {
+      id: 'n0-n2',
+      kind: 'edge',
+      from: 'n0',
+      to: 'n2',
+      label: '데이터 분할 → GPU 2 모델 복제',
+      hint: '설명의 입력·출력과 화살표 방향을 확인하세요.',
+    },
+    {
+      id: 'n1-n3',
+      kind: 'edge',
+      from: 'n1',
+      to: 'n3',
+      label: 'GPU 1 모델 복제 → 기울기 동기화',
+      hint: '설명의 입력·출력과 화살표 방향을 확인하세요.',
+    },
+    {
+      id: 'n2-n3',
+      kind: 'edge',
+      from: 'n2',
+      to: 'n3',
+      label: 'GPU 2 모델 복제 → 기울기 동기화',
+      hint: '설명의 입력·출력과 화살표 방향을 확인하세요.',
+    },
+  ],
+  flow: [
+    ['n0', 'n1'],
+    ['n0', 'n2'],
+    ['n1', 'n3'],
+    ['n2', 'n3'],
+  ],
+});

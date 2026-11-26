@@ -1,0 +1,230 @@
+import { defineMdxLesson } from '../../defineLesson';
+
+// 강의 설정과 실습 구성입니다. 본문은 같은 이름의 .mdx에서 작성합니다.
+export default defineMdxLesson({
+  id: 'model-parallel',
+  unit: 4,
+  order: 6,
+  title: '모델 병렬: 레이어를 나누어 배치',
+  summary: '모델의 서로 다른 부분을 GPU에 배치합니다.',
+  scenario:
+    '모델을 레이어 단위로 나누고 순전파의 활성값과 역전파의 기울기가 장치 경계를 넘는 위치를 표시합니다. 활동에서 GPU 수와 통신 비용을 바꿔 장치별 메모리와 대기 시간을 비교해 보세요.',
+  concepts: ['입력', 'GPU 1 앞 레이어', 'GPU 2 뒤 레이어', '출력'],
+  assessment: {
+    question: '레이어를 장치별로 나눌 때 필요한 것은?',
+    options: ['GPU 사이의 중간 활성값 전달', '각 GPU에 같은 전체 모델을 반드시 복제'],
+    correct: 0,
+    explanation:
+      '앞 레이어의 출력(활성값)이 있어야 뒤 레이어를 계산할 수 있으므로, 경계에서 활성값을 다음 GPU로 보내고 역전파 때는 그 기울기를 되돌려 받습니다. 이 순차 의존성 때문에 단순 분할에서는 GPU가 번갈아 기다리게 됩니다.',
+  },
+  advanced: [
+    {
+      title: '심화 · 1F1B 스케줄',
+      body: 'GPipe는 모든 마이크로배치의 순전파를 끝낸 뒤 역전파를 시작하므로, 마이크로배치 수만큼의 활성값을 한꺼번에 보관해야 합니다. 1F1B(one forward, one backward) 스케줄은 파이프라인이 찬 뒤부터 순전파 하나와 역전파 하나를 번갈아 실행해, 동시에 보관하는 활성값을 파이프라인 단계 수 정도로 줄입니다. 버블 크기는 비슷하지만 메모리 사용이 크게 줄어 실제 대규모 학습에서 널리 쓰입니다.',
+    },
+    {
+      title: '심화 · 버블 비율 계산',
+      body: '파이프라인 단계 수를 p, 마이크로배치 수를 m이라 하면, GPipe 방식의 버블 비율은 대략 (p − 1) / (m + p − 1)입니다. 단계가 4개일 때 마이크로배치가 4개면 약 43%가 대기지만, 32개면 약 9%로 줄어듭니다. 그래서 마이크로배치 수를 단계 수보다 충분히 크게 잡습니다.',
+    },
+  ],
+  caution:
+    '레이어 사이의 의존성을 따라 중간 결과를 전달합니다. 메모리는 나눌 수 있지만 단순 분할에서는 한 번에 한 GPU만 일하므로 파이프라인으로 대기를 줄여야 합니다.',
+  reflection:
+    '레이어를 GPU 4장에 나누었더니 각 GPU 사용률이 25% 근처에서 번갈아 오릅니다. 무엇이 원인이며 어떻게 개선하겠습니까?',
+  references: [
+    {
+      title: '원문 · MLOps 3주차 · 실제 도구 실습',
+      url: 'https://www.notion.so/5f3ebb1cb38a83f4a40181082cca16c0',
+    },
+    {
+      title: '논문 · GPipe (파이프라인 병렬)',
+      url: 'https://arxiv.org/abs/1811.06965',
+    },
+    {
+      title: '공식 자료 · PyTorch Pipeline Parallelism',
+      url: 'https://docs.pytorch.org/docs/stable/distributed.pipelining.html',
+    },
+    {
+      title: '공식 자료 · PyTorch 분산 학습 개요',
+      url: 'https://docs.pytorch.org/tutorials/beginner/dist_overview.html',
+    },
+  ],
+  sourceWeek: 3,
+  mapStages: ['training'],
+  activityView: {
+    type: 'parallel',
+    title: '레이어를 나누면 GPU당 무엇이 줄어들까요?',
+    instruction: 'GPU 수를 바꿔 장치당 메모리와 레이어 사이 활성값 전달 비용을 비교하세요.',
+  },
+  activity: {
+    kind: 'parallel',
+    variant: 'model',
+    fields: [
+      {
+        id: 'gpus',
+        label: 'GPU 수',
+        initial: 2,
+        min: 1,
+        max: 8,
+        step: 1,
+        help: 'GPU 수를 늘려 통신 비용과 함께 비교합니다.',
+      },
+      {
+        id: 'vram',
+        label: 'GPU당 VRAM (GiB)',
+        initial: 16,
+        min: 4,
+        max: 80,
+        step: 1,
+        help: 'GPU당 용량이며 단순 합산과 다릅니다.',
+      },
+      {
+        id: 'model',
+        label: '모델 메모리 (GiB)',
+        initial: 24,
+        min: 4,
+        max: 96,
+        step: 1,
+        help: '학습 상태까지 포함한 예시 크기입니다.',
+      },
+      {
+        id: 'work',
+        label: '작업 크기',
+        initial: 64,
+        min: 8,
+        max: 256,
+        step: 1,
+        help: '동일 작업의 분할을 비교합니다.',
+      },
+      {
+        id: 'communication',
+        label: '통신 비용',
+        initial: 4,
+        min: 0,
+        max: 32,
+        step: 1,
+        help: '동기화·중간 결과 전송에 드는 상대 시간입니다.',
+      },
+    ],
+    question: '레이어를 장치별로 나눌 때 필요한 것은?',
+    options: [
+      {
+        value: 'a',
+        label: 'GPU 사이의 중간 활성값 전달',
+      },
+      {
+        value: 'b',
+        label: '각 GPU에 같은 전체 모델을 반드시 복제',
+      },
+    ],
+    correct: 'a',
+    explanation: '레이어 사이의 의존성을 따라 중간 결과를 전달합니다.',
+    task: 'GPU 수와 통신 비용을 바꿔 메모리 분할과 대기를 관찰하세요.',
+  },
+  practice: 'interactive',
+  experiment: '흐름 확인',
+  nodes: [
+    {
+      id: 'n0',
+      title: '입력',
+      detail: '모델 병렬: 레이어를 나누어 배치 · 1번째 구성 요소',
+      tone: '#9d85d7',
+    },
+    {
+      id: 'n1',
+      title: 'GPU 1 앞 레이어',
+      detail: '모델 병렬: 레이어를 나누어 배치 · 2번째 구성 요소',
+      tone: '#9d85d7',
+    },
+    {
+      id: 'n2',
+      title: 'GPU 2 뒤 레이어',
+      detail: '모델 병렬: 레이어를 나누어 배치 · 3번째 구성 요소',
+      tone: '#9d85d7',
+    },
+    {
+      id: 'n3',
+      title: '출력',
+      detail: '모델 병렬: 레이어를 나누어 배치 · 4번째 구성 요소',
+      tone: '#9d85d7',
+    },
+  ],
+  fields: [
+    {
+      id: 'gpus',
+      label: 'GPU 수',
+      initial: 2,
+      min: 1,
+      max: 8,
+      step: 1,
+      help: 'GPU 수를 늘려 통신 비용과 함께 비교합니다.',
+    },
+    {
+      id: 'vram',
+      label: 'GPU당 VRAM (GiB)',
+      initial: 16,
+      min: 4,
+      max: 80,
+      step: 1,
+      help: 'GPU당 용량이며 단순 합산과 다릅니다.',
+    },
+    {
+      id: 'model',
+      label: '모델 메모리 (GiB)',
+      initial: 24,
+      min: 4,
+      max: 96,
+      step: 1,
+      help: '학습 상태까지 포함한 예시 크기입니다.',
+    },
+    {
+      id: 'work',
+      label: '작업 크기',
+      initial: 64,
+      min: 8,
+      max: 256,
+      step: 1,
+      help: '동일 작업의 분할을 비교합니다.',
+    },
+    {
+      id: 'communication',
+      label: '통신 비용',
+      initial: 4,
+      min: 0,
+      max: 32,
+      step: 1,
+      help: '동기화·중간 결과 전송에 드는 상대 시간입니다.',
+    },
+  ],
+  goals: [
+    {
+      id: 'n0-n1',
+      kind: 'edge',
+      from: 'n0',
+      to: 'n1',
+      label: '입력 → GPU 1 앞 레이어',
+      hint: '설명의 입력·출력과 화살표 방향을 확인하세요.',
+    },
+    {
+      id: 'n1-n2',
+      kind: 'edge',
+      from: 'n1',
+      to: 'n2',
+      label: 'GPU 1 앞 레이어 → GPU 2 뒤 레이어',
+      hint: '설명의 입력·출력과 화살표 방향을 확인하세요.',
+    },
+    {
+      id: 'n2-n3',
+      kind: 'edge',
+      from: 'n2',
+      to: 'n3',
+      label: 'GPU 2 뒤 레이어 → 출력',
+      hint: '설명의 입력·출력과 화살표 방향을 확인하세요.',
+    },
+  ],
+  flow: [
+    ['n0', 'n1'],
+    ['n1', 'n2'],
+    ['n2', 'n3'],
+  ],
+});

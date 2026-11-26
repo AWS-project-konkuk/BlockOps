@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <script>
+      try {
+        var p = JSON.parse(localStorage.getItem('blockops:preferences:v1') || '{}');
+        var t = p.theme;
+        document.documentElement.dataset.theme =
+          t === 'dark' || t === 'light'
+            ? t
+            : matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light';
+        document.documentElement.style.colorScheme = document.documentElement.dataset.theme;
+      } catch {
+        document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light';
+      }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#090e17" />
+    <meta
+      name="description"
+      content="EC2·S3부터 VPC, 고가용성, 메시지 큐, 컨테이너, 서버리스까지, 개념을 읽고 노드 실습으로 AWS 인프라와 DevOps를 배우는 한국어 학습 사이트"
+    />
+    <title>BlockOps | DevOps 학습 과정</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="BlockOps" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="BlockOps | DevOps 학습실" />
+    <meta
+      property="og:description"
+      content="개념을 읽고, 노드를 직접 연결해 실행하며 배우는 AWS와 DevOps. EC2·S3부터 VPC, ALB·ASG·RDS, SQS·SNS, ECS·EKS, Lambda까지 전체 구조를 익힙니다."
+    />
+    <meta property="og:image" content="__SITE_URL__/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="BlockOps 노드 실습 화면. 입력 소스, 저장소, EC2, 모델 레지스트리, Gateway가 선으로 연결된 MLOps 워크플로우"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

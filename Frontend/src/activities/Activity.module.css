@@ -1,0 +1,466 @@
+.optionalActivity {
+  container-type: inline-size;
+  margin-block: var(--space-xl);
+  padding: clamp(12px, 2vw, 24px);
+  border: 1px solid var(--color-rule-2);
+  border-radius: var(--radius-card);
+  background: var(--color-paper-2);
+  color: var(--color-ink);
+}
+
+.optionalActivity > summary {
+  padding-block: 8px;
+  cursor: pointer;
+  color: var(--color-ink);
+}
+
+.optionalActivity > summary > h3 {
+  display: inline;
+  font-size: var(--text-lg);
+  line-height: 1.4;
+}
+
+.optionalActivity > summary > span {
+  display: inline-block;
+  margin-inline-start: 10px;
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.optionalActivity[open] > summary {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.activity {
+  min-width: 0;
+  font-size: var(--text-md);
+  line-height: 1.55;
+}
+
+.activity .instruction {
+  margin-block: 16px;
+}
+
+.activity .notice,
+.activity .figureNote {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.activity .notice {
+  margin-block: 16px 0;
+}
+
+.activity .notice + .notice {
+  margin-top: 4px;
+}
+
+.activity button,
+.activity input[type='number'] {
+  min-height: 44px;
+  font: inherit;
+  font-size: var(--text-sm);
+}
+
+.activity button {
+  padding: 6px 12px;
+  border: 1px solid var(--color-rule-2);
+  border-radius: var(--radius-control, 6px);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.activity button:hover:not(:disabled),
+.activity button[aria-pressed='true'] {
+  border-color: var(--color-accent);
+  background: var(--color-accent-wash);
+  color: var(--color-ink);
+}
+
+.activity button[aria-pressed='true'] {
+  font-weight: 700;
+  box-shadow: inset 0 -2px var(--color-accent);
+}
+
+.activity button:disabled {
+  color: var(--color-muted);
+  cursor: default;
+}
+
+.optionalActivity > summary:focus-visible,
+.activity :is(button, input, select, a):focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 175px), 1fr));
+  gap: 16px;
+  margin-block: 16px;
+}
+
+.optionField,
+.inputField {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.optionField > legend,
+.inputField > label {
+  margin-bottom: 4px;
+  font-size: var(--text-sm);
+  font-weight: 650;
+}
+
+.optionField > small,
+.inputField > small {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.inputField > input {
+  width: min(100%, 120px);
+  padding: 4px 8px;
+  border: 1px solid var(--color-rule-2);
+  border-radius: var(--radius-control, 6px);
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+.inputField > input[aria-invalid='true'] {
+  border-color: var(--color-error);
+}
+
+.choices,
+.quickActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sampleComparison {
+  display: grid;
+  align-items: start;
+  gap: 0 16px;
+}
+
+@container (min-width: 585px) {
+  .sampleComparison {
+    grid-template-columns: minmax(0, 1fr) minmax(185px, 0.46fr);
+  }
+}
+
+.figure {
+  min-width: 0;
+  margin: 16px 0 0;
+  padding: clamp(10px, 2vw, 20px);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-card);
+  background: var(--color-paper);
+}
+
+.figure > figcaption {
+  margin-bottom: 12px;
+  color: var(--color-ink);
+  font-size: var(--text-md);
+  font-weight: 700;
+}
+
+.activity .figureNote {
+  margin: 12px 0 0;
+}
+
+.activity .flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.activity .flow > li {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.flow > li > span {
+  padding: 7px 10px;
+  border: 1px solid var(--color-rule-2);
+  border-radius: var(--radius-control, 6px);
+  background: var(--color-paper-2);
+  color: var(--color-ink);
+}
+
+.flow > li > span[aria-current='step'] {
+  border-color: var(--color-accent);
+  background: var(--color-accent-wash);
+  font-weight: 700;
+}
+
+.flow svg {
+  flex: none;
+  color: var(--color-muted);
+}
+
+.result {
+  padding-block-start: 12px;
+  margin-block-start: 16px;
+  border-top: 1px solid var(--color-rule);
+}
+
+.result strong {
+  color: var(--color-ink);
+  font-size: var(--text-md);
+}
+
+.result > p {
+  margin: 4px 0 0;
+}
+
+.values {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 138px), 1fr));
+  gap: 8px 16px;
+  margin: 12px 0;
+}
+
+.values > div {
+  padding-block: 6px;
+  border-top: 1px solid var(--color-rule);
+}
+
+.values dt {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.values dd {
+  margin-inline: 0;
+  color: var(--color-ink);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.values dd.explanation {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  font-weight: 400;
+}
+
+.activity .error,
+.barRow > small[data-overflow='true'] {
+  color: var(--color-error);
+}
+
+.activity .legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 14px;
+  padding: 0;
+  margin: 0 0 12px;
+  color: var(--color-muted);
+  list-style: none;
+  font-size: var(--text-sm);
+}
+
+.activity .legend > li {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+}
+
+.legend > li::before {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--swatch);
+  content: '';
+}
+
+.legend > li[data-swatch='base'] {
+  --swatch: var(--color-accent);
+}
+
+.legend > li[data-swatch='work'] {
+  --swatch: var(--color-rule-2);
+}
+
+.legend > li[data-swatch='over'] {
+  --swatch: var(--color-error);
+}
+
+.barRow + .barRow {
+  margin-top: 12px;
+}
+
+.barRow > small {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.barHeading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1px 12px;
+  font-size: var(--text-sm);
+}
+
+.barHeading > span {
+  font-variant-numeric: tabular-nums;
+}
+
+.track {
+  position: relative;
+  display: flex;
+  height: 16px;
+  margin-block: 6px;
+  border-radius: 4px;
+  background: var(--color-paper-3);
+}
+
+.track > div:first-child {
+  border-start-start-radius: inherit;
+  border-end-start-radius: inherit;
+}
+
+.baseSegment {
+  background: var(--color-accent);
+}
+
+.workSegment {
+  background: var(--color-rule-2);
+}
+
+.overSegment {
+  background: var(--color-error);
+}
+
+.limitMarker {
+  position: absolute;
+  inset-block: -3px;
+  border-inline-start: 2px solid var(--color-ink);
+  transform: translateX(-1px);
+}
+
+.observationTable {
+  width: 100%;
+}
+
+.observationTable td[data-changed='true'] {
+  color: var(--color-accent-deep);
+  font-weight: 700;
+}
+
+.chart {
+  display: block;
+  width: 100%;
+  max-width: 620px;
+  margin-inline: auto;
+}
+
+.chart text {
+  fill: var(--color-ink-2);
+  font-size: 12px;
+}
+
+.chartAxis,
+.chartSignal,
+.chartLimit {
+  fill: none;
+  stroke: var(--color-rule-2);
+}
+
+.chartSignal {
+  stroke: var(--color-muted);
+}
+
+.chartLimit {
+  stroke: var(--color-error);
+  stroke-dasharray: 6 5;
+}
+
+.chartSample {
+  fill: var(--color-accent);
+}
+
+.chartAlert {
+  fill: var(--color-error);
+}
+
+.fields {
+  display: grid;
+  gap: var(--space-md);
+  margin-block: var(--space-lg);
+}
+
+.fields label > span {
+  display: block;
+  margin-bottom: var(--space-xs);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.fields select,
+.numeric input[type='number'] {
+  width: 100%;
+  min-width: 0;
+  padding: var(--space-xs);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--page);
+  color: var(--text);
+}
+
+.numeric {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 78px;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.numeric input[type='range'] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+@media (max-width: 520px) {
+  .activity .flow {
+    flex-direction: column;
+  }
+
+  .activity .flow > li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .flow svg {
+    margin-inline-start: 8px;
+    transform: rotate(90deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .activity *,
+  .activity *::before,
+  .activity *::after {
+    transition: none;
+    animation: none;
+  }
+}
