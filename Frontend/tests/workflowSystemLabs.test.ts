@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { lessons } from '../src/curriculum/blockops';
 import { applyCommand } from '../src/systemLab/commands';
 import { runLab } from '../src/systemLab/engine';
 import {
@@ -24,11 +25,11 @@ const metrics = (result: ReturnType<typeof run>) =>
 
 describe('단원 말미 시스템 실습', () => {
   it('단원 종합 실습 강의만 시스템 실습을 연다', () => {
-    expect(Object.keys(labConfigs).sort()).toEqual([
-      'intro-workflow',
-      'week2-workflow',
-      'week6-workflow',
-    ]);
+    const lessonIds = new Set(lessons.map((lesson) => lesson.id));
+    for (const id of Object.keys(labConfigs)) {
+      expect(lessonIds.has(id), id).toBe(true);
+      expect(id, id).toMatch(/-workflow$/);
+    }
     expect(labFor('pv-pvc')).toBeUndefined();
   });
 

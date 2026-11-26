@@ -9,6 +9,13 @@
 | 0 | 3 | [git-basics](lessons/00-cloud/git-basics.mdx) | Git으로 코드의 버전 기록하기 |
 | 0 | 4 | [intro-workflow](lessons/00-cloud/intro-workflow.mdx) | 첫 노드 실습 · EC2에서 리뷰 수 세기 |
 | 1 | 1 | [storage-compare](lessons/01-storage/storage-compare.mdx) | Block·File·Object의 접근 방식 |
+| 1 | 2 | [s3-security](lessons/01-storage/s3-security.mdx) | S3 버킷 권한과 퍼블릭 액세스 차단 |
+| 1 | 3 | [cloudfront-cache](lessons/01-storage/cloudfront-cache.mdx) | CloudFront 캐시: 캐시 키·TTL·무효화 |
+| 1 | 4 | [cdn-workflow](lessons/01-storage/cdn-workflow.mdx) | 실습 · 비공개 S3를 CloudFront로 배포하기 |
+| 2 | 1 | [vpc-subnet](lessons/02-network/vpc-subnet.mdx) | VPC와 서브넷: 내 네트워크의 경계 나누기 |
+| 2 | 2 | [route-igw-nat](lessons/02-network/route-igw-nat.mdx) | 라우팅 테이블로 퍼블릭·프라이빗 나누기 |
+| 2 | 3 | [sg-nacl](lessons/02-network/sg-nacl.mdx) | 보안 그룹과 NACL: 어디서 무엇을 검사할까 |
+| 2 | 4 | [network-workflow](lessons/02-network/network-workflow.mdx) | 실습 · 퍼블릭 서브넷의 웹 서버에 닿게 하기 |
 | 5 | 1 | [runtime-overview](lessons/05-container/runtime-overview.mdx) | 단원 개요 |
 | 5 | 2 | [vm-container](lessons/05-container/vm-container.mdx) | VM과 컨테이너의 차이 |
 | 5 | 3 | [docker-commands](lessons/05-container/docker-commands.mdx) | Docker란? |

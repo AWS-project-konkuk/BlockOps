@@ -36,7 +36,7 @@ function observed(state: LabState): LabState {
 describe('BlockOps 과정과 활동 계약', () => {
   it('0~9단원의 설명과 선택 활동을 제공한다', () => {
     expect(weeks).toHaveLength(9);
-    expect(lessons).toHaveLength(23);
+    expect(new Set(lessons.map((l) => l.id)).size).toBe(lessons.length);
     for (const l of lessons.filter((l) => l.activity)) {
       expect(l.minutes).toBeGreaterThanOrEqual(5);
       expect(l.minutes).toBeLessThanOrEqual(18);

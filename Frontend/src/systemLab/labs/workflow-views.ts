@@ -57,6 +57,28 @@ export const workflowViews = {
       end: 'EC2에서 보낸 작업 결과를 표시합니다.',
     },
   }),
+  'cdn-workflow': workflowView({
+    title: '비공개 S3를 CloudFront로 배포하기',
+    description:
+      '`사용자`가 `정적 파일 버킷`에 바로 요청하고 있습니다. 버킷은 비공개로 둔 채 `CloudFront`를 거쳐 로고 파일 `100건`이 모두 응답을 받게 하세요.',
+    entry:
+      '먼저 그대로 실행해 막히는 이유를 확인하고, CloudFront를 거치게 연결한 뒤 새 버전이 바로 보이도록 설정을 고치세요.',
+    hints: {
+      start: '/static/logo.png로 요청 100건을 보냅니다.',
+      end: '캐시 응답과 버킷 응답을 합쳐 모든 요청이 응답을 받았는지 확인합니다.',
+    },
+  }),
+  'network-workflow': workflowView({
+    title: '퍼블릭 서브넷의 웹 서버에 닿게 하기',
+    description:
+      '`사용자`의 HTTPS 요청이 `인터넷 게이트웨이`를 지나 `웹 서버`에 닿지 않습니다. 라우팅 테이블과 보안 그룹을 고쳐 요청 `100건`이 모두 응답을 받게 하세요. DB는 프라이빗 서브넷에 그대로 둡니다.',
+    entry:
+      '인터넷 게이트웨이를 웹 서버에 연결하고 실행한 뒤, 실패 메시지가 가리키는 서브넷과 웹 서버의 설정을 차례로 고치세요.',
+    hints: {
+      start: 'HTTPS(443)로 요청 100건을 보냅니다.',
+      end: '웹 서버가 보낸 응답으로 모든 요청이 응답을 받았는지 확인합니다.',
+    },
+  }),
   'week6-workflow': workflowView({
     icons: { gateway: Network, routeTraffic: Network, infer: Cpu, observeResponses: FileText },
     materialIcons: {

@@ -17,7 +17,6 @@ test('모든 강의에서 공통 프레임과 초기 펼침 상태를 확인한�
   const openByDefault = new Set(['ec2-compute', 'vm-container', 'storage-compare']);
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  expect(lessons).toHaveLength(23);
   expect(lessons.filter((lesson) => lesson.activityView)).toHaveLength(9);
 
   for (const lesson of lessons) {

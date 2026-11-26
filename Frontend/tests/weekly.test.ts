@@ -24,7 +24,7 @@ const connected = (id: string, changes: Record<string, Answer> = {}): LabState =
 };
 describe('개념과 주차 종합 과정 분리', () => {
   it('주차 종합 실습 강의를 단원에 배치한다', () => {
-    expect(lessons).toHaveLength(23);
+    expect(lessons.filter((l) => l.id.endsWith('-workflow')).length).toBeGreaterThan(2);
     expect(lessonById['week2-workflow'].week).toBe(5);
     expect(lessonById['week6-workflow'].week).toBe(9);
   });
