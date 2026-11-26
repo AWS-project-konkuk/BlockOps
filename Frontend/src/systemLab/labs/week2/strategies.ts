@@ -140,7 +140,9 @@ export const strategies: Record<string, Strategy> = {
     if (
       responses.some(
         (r) =>
-          r.payload !== first.payload || r.image !== first.image || r.deployment !== first.deployment,
+          r.payload !== first.payload ||
+          r.image !== first.image ||
+          r.deployment !== first.deployment,
       )
     )
       throw new Error('두 Pod에 같은 모델·이미지·Deployment를 연결하세요.');

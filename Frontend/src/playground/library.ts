@@ -30,7 +30,9 @@ export function parseLibrary(raw: string | null): SavedPlayground[] {
     if (typeof id !== 'string' || typeof name !== 'string' || typeof updatedAt !== 'number')
       return [];
     try {
-      return [{ id, name, updatedAt, graph: readWorkflow({ version: WORKFLOW_VERSION, graph }).graph }];
+      return [
+        { id, name, updatedAt, graph: readWorkflow({ version: WORKFLOW_VERSION, graph }).graph },
+      ];
     } catch {
       return [];
     }
