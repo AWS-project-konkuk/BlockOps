@@ -567,7 +567,7 @@ function SystemLabBody({
                           .map((r, i) => (
                             <li key={i}>
                               <span>요청 {r.id}</span> <strong>{r.label}</strong>{' '}
-                              <span>{name(r.pod)}</span>
+                              <span>{name(r.node)}</span>
                             </li>
                           ))}
                       </ul>

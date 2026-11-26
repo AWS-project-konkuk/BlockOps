@@ -54,8 +54,8 @@ interface ActivityCopy {
 
 export type ActivityView = ActivityCopy &
   (
-    | { type: 'machine' | 'virtual' | 'storage' | 'io' | 'feature-store' }
-    | { type: 'numbers' | 'search' | 'parallel' | 'release' }
+    | { type: 'machine' | 'virtual' | 'storage' }
+    | { type: 'numbers' | 'release' }
     | { type: 'structure' | 'scenario'; cases?: ActivityCase[] }
   );
 

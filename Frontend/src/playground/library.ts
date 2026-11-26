@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Graph } from '../systemLab/lab';
-import { readWorkflow } from './workflow';
+import { readWorkflow, WORKFLOW_VERSION } from './workflow';
 
 /** 브라우저에 저장해 둔 내 Playground 한 건. */
 export interface SavedPlayground {
@@ -30,7 +30,7 @@ export function parseLibrary(raw: string | null): SavedPlayground[] {
     if (typeof id !== 'string' || typeof name !== 'string' || typeof updatedAt !== 'number')
       return [];
     try {
-      return [{ id, name, updatedAt, graph: readWorkflow({ version: 2, graph }).graph }];
+      return [{ id, name, updatedAt, graph: readWorkflow({ version: WORKFLOW_VERSION, graph }).graph }];
     } catch {
       return [];
     }

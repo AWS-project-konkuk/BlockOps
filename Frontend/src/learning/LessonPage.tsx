@@ -9,11 +9,8 @@ import { LessonArticle } from './LessonArticle';
 import { SystemLab } from '../systemLab/SystemLab';
 import { hasNodePractice, labFor } from '../systemLab/labs';
 import { useLessonCompletion } from '../systemLab/store';
-import { WeeklyLab } from '../weekly/WeeklyLab';
 import { useLearning } from './LearningStore';
 import styles from './LessonLayout.module.css';
-import { getLab } from './blockProgress';
-import { workflowGoals } from '../weekly/engine';
 
 export function LessonPage({ lesson }: { lesson: Lesson }) {
   const { state } = useLearning();
@@ -29,10 +26,6 @@ export function LessonPage({ lesson }: { lesson: Lesson }) {
   const completed = useLessonCompletion(state.data)(lesson.id);
   const pilot = labFor(lesson.id) !== undefined;
   const hasPractice = hasNodePractice(lesson);
-  const pendingGoal =
-    lesson.workflow && !pilot
-      ? workflowGoals(lesson, getLab(state.data, lesson.id)).find((goal) => !goal.passed)
-      : undefined;
   const startPractice = () => changeView('practice');
   return (
     <main className={styles.shell}>
@@ -101,11 +94,7 @@ export function LessonPage({ lesson }: { lesson: Lesson }) {
               data-testid="lesson-practice"
               data-system-lab={pilot || undefined}
             >
-              {pilot ? (
-                <SystemLab key={lesson.id} lesson={lesson} />
-              ) : (
-                <WeeklyLab key={lesson.id} lesson={lesson} />
-              )}
+              <SystemLab key={lesson.id} lesson={lesson} />
             </div>
           )}
         </div>
@@ -120,11 +109,7 @@ export function LessonPage({ lesson }: { lesson: Lesson }) {
               : hasPractice
                 ? view === 'reading'
                   ? '설명을 읽었다면 실습을 시작하세요.'
-                  : pendingGoal
-                    ? `남은 목표: ${pendingGoal.label}`
-                    : pilot
-                      ? '실행 성공 후 결과 패널에서 이해 확인에 답하세요.'
-                      : '설정·결과에서 실습 완료를 기록하세요.'
+                  : '실행 성공 후 결과 패널에서 이해 확인에 답하세요.'
                 : '설명을 읽고 이해 확인 문제에 답하세요.'}
           </span>
           {hasPractice && !completed && view === 'reading' && (

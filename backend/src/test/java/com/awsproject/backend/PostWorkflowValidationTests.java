@@ -26,7 +26,7 @@ import com.awsproject.backend.post.PostService;
 class PostWorkflowValidationTests {
     private static final String VALID_WORKFLOW = """
         {
-          "version": 2,
+          "version": 3,
           "graph": {
             "entities": [
               {
@@ -106,6 +106,19 @@ class PostWorkflowValidationTests {
     }
 
     @Test
+    void rejectsBlockMlWorkflowVersion() throws Exception {
+        String blockMlWorkflow = VALID_WORKFLOW.replace("\"version\": 3,", "\"version\": 2,");
+
+        mvc.perform(post("/api/posts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(createBody(blockMlWorkflow)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_REQUEST"));
+
+        verify(postService, never()).createPost(any(), any(), any(), any(), any());
+    }
+
+    @Test
     void rejectsLegacyOrMalformedWorkflowBeforeSaving() throws Exception {
         String invalidWorkflow = """
             {"version": 1, "graph": {"nodes": [], "edges": []}}
@@ -124,7 +137,7 @@ class PostWorkflowValidationTests {
     void rejectsConnectionToUnknownEntityOnUpdate() throws Exception {
         String invalidWorkflow = """
             {
-              "version": 2,
+              "version": 3,
               "graph": {
                 "entities": [],
                 "connections": [{
@@ -160,7 +173,7 @@ class PostWorkflowValidationTests {
     void rejectsTooFewEntitiesWithRequirementsStatus() throws Exception {
         String workflow = """
             {
-              "version": 2,
+              "version": 3,
               "graph": {
                 "entities": [{
                   "id": "root",
@@ -203,7 +216,7 @@ class PostWorkflowValidationTests {
     private static String workflowWithParents(String rootParent, String datasetParent) {
         return """
             {
-              "version": 2,
+              "version": 3,
               "graph": {
                 "entities": [
                   {

@@ -1,11 +1,19 @@
-import type { Artifact, Strategy } from '../../engine';
+import { materialOf, type Artifact, type Strategy, type VersionedArtifact } from '../../engine';
 import { type Graph, type LabConfig, type ResourceEntity, type Version } from '../../lab';
 import { josa } from '../../josa';
 import { appLabel } from './rules';
 
 type Typed = 'model' | 'image' | 'control';
+const versioned = (material: Typed, version: Version, source: string): VersionedArtifact => ({
+  type: 'versioned',
+  material,
+  version,
+  source,
+});
 function required(lab: LabConfig, inputs: Artifact[], type: Typed) {
-  const values = inputs.filter((a) => a.type === type) as { version: Version; source: string }[];
+  const values = inputs.filter(
+    (a): a is VersionedArtifact => a.type === 'versioned' && materialOf(a) === type,
+  );
   if (!values.length) throw new Error(lab.materials[type] + ' 입력이 없습니다.');
   if (
     values.some(
@@ -55,7 +63,7 @@ function deploymentImage(lab: LabConfig, graph: Graph, pod: ResourceEntity) {
   if (!images.length) throw new Error('Kubernetes의 이미지 입력에 컨테이너 이미지를 연결하세요.');
   return required(
     lab,
-    images.map((image) => ({ type: 'image', version: image.version, source: image.id })),
+    images.map((image) => versioned('image', image.version, image.id)),
     'image',
   );
 }
@@ -68,8 +76,8 @@ const infer: Strategy = ({ lab, node, graph, inputs, emit }) => {
     type: 'prediction',
     responses: batch.map(({ id, viaService }) => ({
       id,
-      pod: node.id,
-      model: model.version,
+      node: node.id,
+      payload: model.version,
       image: image.version,
       deployment: node.kind === 'pod' ? node.parent : '',
       viaService,
@@ -81,15 +89,15 @@ const infer: Strategy = ({ lab, node, graph, inputs, emit }) => {
 export const strategies: Record<string, Strategy> = {
   start: ({ lab, node, emit }) => {
     emit({ type: 'request', requests: lab.requestIds.map((id) => ({ id })) });
-    emit({ type: 'model', version: node.version, source: node.id });
+    emit(versioned('model', node.version, node.id));
     return josa('검증된 모델 ' + node.version, '과/와') + ' 리뷰 요청 10건을 보냈습니다.';
   },
   model: ({ node, emit }) => {
-    emit({ type: 'model', version: node.version, source: node.id });
+    emit(versioned('model', node.version, node.id));
     return josa('검증된 모델 ' + node.version, '을/를') + ' 제공했습니다.';
   },
   image: ({ node, emit }) => {
-    emit({ type: 'image', version: node.version, source: node.id });
+    emit(versioned('image', node.version, node.id));
     return josa('서빙 이미지 ' + node.version, '을/를') + ' 제공했습니다.';
   },
   deployment: () => {
@@ -125,14 +133,14 @@ export const strategies: Record<string, Strategy> = {
       );
     if (responses.some((response) => !response.viaService))
       throw new Error('모든 요청은 Kubernetes Service를 거쳐야 합니다.');
-    const pods = new Set(responses.map((r) => r.pod));
+    const pods = new Set(responses.map((r) => r.node));
     if (pods.size < lab.requiredPods || responses.some((r) => !r.deployment))
       throw new Error('Deployment가 관리하는 서로 다른 Pod가 두 개 이상 요청을 처리해야 합니다.');
     const first = responses[0];
     if (
       responses.some(
         (r) =>
-          r.model !== first.model || r.image !== first.image || r.deployment !== first.deployment,
+          r.payload !== first.payload || r.image !== first.image || r.deployment !== first.deployment,
       )
     )
       throw new Error('두 Pod에 같은 모델·이미지·Deployment를 연결하세요.');

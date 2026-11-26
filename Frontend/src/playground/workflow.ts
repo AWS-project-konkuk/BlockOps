@@ -2,13 +2,23 @@ import type { Graph } from '../systemLab/lab';
 import { playgroundLab } from '../systemLab/labs';
 import { parseSaved } from '../systemLab/store';
 
+/**
+ * 게시판 워크플로우 형식 버전. 노드 구성이 바뀌어 이전 글을 읽을 수 없게 되면 올린다.
+ * 백엔드 `WorkflowValidator.WORKFLOW_VERSION`과 같은 값이어야 한다.
+ * 2: BlockML(MLOps) 노드, 3: BlockOps(AWS) 노드
+ */
+export const WORKFLOW_VERSION = 3;
+
 /** 게시판에 첨부하고 불러오는 플레이그라운드 구성. 단원 실습과 같은 그래프 형식이다. */
 export interface PlaygroundWorkflow {
-  version: 2;
+  version: typeof WORKFLOW_VERSION;
   graph: Graph;
 }
 
-export const toWorkflow = (graph: Graph): PlaygroundWorkflow => ({ version: 2, graph });
+export const toWorkflow = (graph: Graph): PlaygroundWorkflow => ({
+  version: WORKFLOW_VERSION,
+  graph,
+});
 
 /** 만든 노드(서비스 밖 루트는 제외)가 하나라도 있는지. */
 export const hasNodes = (graph: Graph) => graph.entities.some((e) => e.type === 'resource');
@@ -31,7 +41,11 @@ export function workflowShortfall(graph: Graph): string | null {
 /** 서버에서 받은 값을 검증해 읽는다. 이전 Playground 형식이나 깨진 값은 오류를 던진다. */
 export function readWorkflow(value: unknown): PlaygroundWorkflow {
   if (value && typeof value === 'object' && 'workflow' in value) value = value.workflow;
-  if (!value || typeof value !== 'object' || !('version' in value) || value.version !== 2)
+  if (!value || typeof value !== 'object' || !('version' in value))
+    throw new Error('이 워크플로우는 이전 Playground 형식이라 불러올 수 없습니다.');
+  if (value.version === 2)
+    throw new Error('이 워크플로우는 BlockML(MLOps) 노드로 만든 구성이라 불러올 수 없습니다.');
+  if (value.version !== WORKFLOW_VERSION)
     throw new Error('이 워크플로우는 이전 Playground 형식이라 불러올 수 없습니다.');
   const { graph } = value as { graph?: unknown };
   try {

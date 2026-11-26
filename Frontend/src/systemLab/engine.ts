@@ -10,8 +10,10 @@ import { week2Lab } from './labs/week2';
 export type Request = { id: number; viaService?: string };
 export type Response = {
   id: number;
-  pod: string;
-  model: Version;
+  /** 요청을 처리한 노드. */
+  node: string;
+  /** 응답에 쓴 산출물(앱 패키지 등)의 버전. */
+  payload: Version;
   image: Version;
   deployment: string;
   viaService?: string;
@@ -24,11 +26,21 @@ export interface DataArtifact {
   summary: string;
   data: Record<string, unknown>;
 }
+/** 버전이 있는 산출물(컨테이너 이미지, 앱 패키지, 배포 설정 등). material이 포트 타입이다. */
+export interface VersionedArtifact {
+  type: 'versioned';
+  material: Material;
+  version: Version;
+  source: string;
+}
 export type Artifact =
   | { type: 'request'; requests: Request[] }
   | { type: 'prediction'; responses: Response[] }
-  | { type: 'model' | 'image' | 'control'; version: Version; source: string }
+  | VersionedArtifact
   | DataArtifact;
+/** 산출물이 오가는 포트 타입. */
+export const materialOf = (a: Artifact): Material =>
+  a.type === 'data' || a.type === 'versioned' ? a.material : a.type;
 export interface Metric {
   label: string;
   value: string;
@@ -124,7 +136,7 @@ function describe(lab: LabConfig, a: Artifact, material: Material) {
   if (a.type === 'request') return lab.materials[material] + ' ' + a.requests.length + '건';
   if (a.type === 'prediction') return lab.materials[material] + ' ' + a.responses.length + '건';
   if (a.type === 'data') return a.summary;
-  return (a.type === 'model' ? 'model.pkl · ' : lab.materials[material] + ' ') + a.version;
+  return lab.materials[material] + ' ' + a.version;
 }
 
 export function runLab(graph: Graph, id: string, lab: LabConfig = week2Lab): RunResult {
@@ -211,7 +223,7 @@ export function runLab(graph: Graph, id: string, lab: LabConfig = week2Lab): Run
           edge: edge.id,
           from: edge.from.node,
           to: edge.to.node,
-          description: describe(lab, value, value.type === 'data' ? value.material : value.type),
+          description: describe(lab, value, materialOf(value)),
           artifact: value,
         });
       };
@@ -227,7 +239,7 @@ export function runLab(graph: Graph, id: string, lab: LabConfig = week2Lab): Run
             metrics = next;
           },
           emit: (artifact, portId) => {
-            const material = artifact.type === 'data' ? artifact.material : artifact.type;
+            const material = materialOf(artifact);
             const ports = node.ports.filter(
               (p) =>
                 p.direction === 'out' && p.material === material && (!portId || p.id === portId),
