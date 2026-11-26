@@ -1,32 +1,44 @@
-import { catalog } from './catalog';
+import { defineAwsLab } from './aws/workflow';
 import { datum, josa, need, numbers, port, wired } from './kit';
-import { defineWorkflowLab } from './workflow';
 
 const filename = 'count_rows.py';
 const commit = 'a1b2c3d';
 const key = 'reviews.csv';
 const sampleIds = [1, 2, 3];
 
-export const introWorkflowLab = defineWorkflowLab({
+/** 0단원 첫 노드 실습. Git의 코드와 S3의 파일을 EC2에서 실행해 리뷰 수를 센다. */
+export const introWorkflowLab = defineAwsLab({
   id: 'intro-workflow',
-  kinds: ['storage', 'ec2'],
+  kinds: [],
   tools: { git: ['repo'], storage: ['readObjects'], ec2: ['executeCode'] },
+  materials: {
+    objects: '읽을 파일',
+    dataset: '입력 파일',
+    'task-result': '작업 결과',
+  },
   custom: {
     git: { label: 'Git', service: true },
-    readObjects: {
-      ...catalog.readObjects,
-      label: '파일 읽기',
-      ports: [
-        port('in', 'objects', 'objects', false, '읽을 파일'),
-        port('out', 'dataset', 'dataset', false, '입력 파일'),
-      ],
-    },
+    storage: { label: '저장소', service: true },
+    ec2: { label: 'EC2', service: true },
     repo: {
       label: '코드 저장소',
       ports: [port('out', 'code', 'code', false, '실행 코드')],
       run: ({ emit }) => {
         emit(datum('code', filename + ' · ' + commit, { filename, commit }));
         return 'Git 커밋 ' + commit + '에서 ' + josa(filename, '을/를') + ' 가져왔습니다.';
+      },
+    },
+    readObjects: {
+      label: '파일 읽기',
+      ports: [
+        port('in', 'objects', 'objects', false, '읽을 파일'),
+        port('out', 'dataset', 'dataset', false, '입력 파일'),
+      ],
+      run: (ctx) => {
+        const objects = need(ctx, 'objects').data;
+        const ids = numbers(objects, 'sampleIds');
+        ctx.emit(datum('dataset', String(objects.key) + ' · 리뷰 ' + ids.length + '건', objects));
+        return '저장소에서 ' + josa(String(objects.key), '을/를') + ' 읽었습니다.';
       },
     },
     executeCode: {
@@ -77,7 +89,7 @@ export const introWorkflowLab = defineWorkflowLab({
       node('start', 'start', 'root', { x: 0, y: 235 }),
       system('git', 'git', 'root', { x: 260, y: 0 }, 244, 151),
       node('repo', 'repo', 'git', { x: 24, y: 54 }),
-      { ...system('storage', 'storage', 'root', { x: 260, y: 183 }, 244, 151), name: '저장소' },
+      system('storage', 'storage', 'root', { x: 260, y: 183 }, 244, 151),
       node('readObjects', 'read', 'storage', { x: 24, y: 54 }),
       system('ec2', 'ec2', 'root', { x: 580, y: 87 }, 244, 170),
       node('executeCode', 'execute', 'ec2', { x: 24, y: 54 }),
@@ -93,5 +105,5 @@ export const introWorkflowLab = defineWorkflowLab({
     wired('read', 'dataset', 'execute', 'dataset'),
   ],
   required: ['repo', 'read', 'execute'],
-  observations: {},
+  observations: [],
 });

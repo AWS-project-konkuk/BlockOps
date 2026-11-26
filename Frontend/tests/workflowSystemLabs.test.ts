@@ -83,17 +83,36 @@ describe('단원 말미 시스템 실습', () => {
     expect(metrics(blueGreen)['전환 중 실패']).toBe('5건');
     graph = set(lab, graph, 'router', 'strategy', 'canary');
     expect(run(lab, graph).success).toBe(true);
-    expect(metrics(run(lab, graph))['신규 모델 사용자 응답']).toBe('10건');
+    expect(metrics(run(lab, graph))['신규 버전 사용자 응답']).toBe('10건');
     graph = set(lab, graph, 'router', 'strategy', 'shadow');
     graph = set(lab, graph, 'router', 'share', '50');
     const shadow = run(lab, graph);
     expect(shadow.success).toBe(true);
     expect(metrics(shadow)).toMatchObject({
       '사용자 응답': '100건',
-      '신규 모델 사용자 응답': '0건',
+      '신규 버전 사용자 응답': '0건',
       'Shadow 비교 로그': '50건',
     });
     graph = applyCommand(graph, { type: 'remove', id: 'new' }, lab);
     expect(run(lab, graph).success).toBe(false);
+  });
+});
+
+describe('실습 화면 설정', () => {
+  it('모든 실습의 노드 종류와 자료 타입에 아이콘·색이 있다', async () => {
+    const { labViews } = await import('../src/systemLab/labs/views');
+    for (const [id, lab] of [
+      ...Object.entries(labConfigs),
+      ['playground', labFor('playground')!] as const,
+    ]) {
+      const view = labViews[id];
+      expect(view, id).toBeDefined();
+      for (const kind of Object.keys(lab.labels))
+        expect(view.icons[kind], id + ' · ' + kind).toBeTypeOf('object');
+      for (const material of Object.keys(lab.materials)) {
+        expect(view.materialIcons[material], id + ' · ' + material).toBeDefined();
+        expect(view.tones[material], id + ' · ' + material).toBeTruthy();
+      }
+    }
   });
 });

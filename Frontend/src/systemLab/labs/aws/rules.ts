@@ -1,7 +1,7 @@
 import type { StepContext, Strategy } from '../../engine';
 import type { Entity, Kind } from '../../lab';
 import { datum, received, setting } from '../kit';
-import { request, requestsOf, type RequestData } from './request';
+import { request, requestsOf, respond, type RequestData } from './request';
 
 /**
  * AWS 노드의 실행 규칙. 워크북의 "질문"과 "트러블 슈팅"에서 나온 실패 상황을 설정과 배치로 판정한다.
@@ -152,6 +152,9 @@ export const awsRules: Record<Kind, (base: Strategy) => Strategy> = {
     }
     const hit = key === 'path' ? CACHE_HIT : 0;
     if (!hit) ctx.observe('cache-miss');
+    const arrived = total(ctx);
+    const hits = Math.round(arrived * hit);
+    respond(ctx, hits, Math.max(...requestsOf(ctx.inputs).map((r) => r.total)), { cache: true });
     const message = base(
       withRequests(ctx, (r) => ({ ...r, count: Math.max(1, Math.round(r.count * (1 - hit))) })),
     );

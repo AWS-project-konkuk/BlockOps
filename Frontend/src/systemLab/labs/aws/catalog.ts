@@ -1,7 +1,7 @@
 import type { Strategy } from '../../engine';
 import type { Kind, LabConfig, PortSpec, SettingSpec } from '../../lab';
 import { choice, datum, josa, port, received, setting } from '../kit';
-import { fanOut, incoming, request, requestSummary } from './request';
+import { fanOut, incoming, request, requestSummary, respond } from './request';
 import { withRules } from './rules';
 
 /**
@@ -26,9 +26,12 @@ export const awsMaterials: Record<string, string> = {
   image: '컨테이너 이미지',
   code: '소스 코드',
   metric: '지표',
+  response: '응답',
 };
 
 const connected = (ctx: Parameters<Strategy>[0], portId: string) => fanOut(ctx, portId) > 0;
+
+const responsePort = port('out', 'response', 'response');
 
 const num = (
   key: string,
@@ -64,6 +67,7 @@ const serve =
         datum('metric', name + ' 지표', { source: ctx.node.name, requests: data.count }),
         'out-metric',
       );
+    respond(ctx, data.count, data.total);
     return name + '에서 요청 ' + data.count + '건을 처리했습니다.';
   };
 const store =
@@ -186,6 +190,7 @@ export const awsKinds: Record<Kind, AwsKind> = {
     ports: [
       port('in', 'request', 'request', true),
       port('out', 'request', 'request', false, '오리진 요청'),
+      port('out', 'response', 'response', false, '캐시 응답'),
     ],
     settings: [
       choice('cacheKey', '캐시 키', 'path', [
@@ -254,7 +259,13 @@ export const awsKinds: Record<Kind, AwsKind> = {
     ],
     run: (ctx) => {
       const data = incoming(ctx);
-      ctx.emit(datum('event', '호출 ' + data.count + '건', { count: data.count, source: 'api' }));
+      ctx.emit(
+        datum('event', '호출 ' + data.count + '건', {
+          count: data.count,
+          total: data.total,
+          source: 'api',
+        }),
+      );
       return data.path + ' 요청 ' + data.count + '건을 통합 대상으로 넘겼습니다.';
     },
   },
@@ -266,6 +277,7 @@ export const awsKinds: Record<Kind, AwsKind> = {
       port('in', 'request', 'request', true),
       port('out', 'query', 'query'),
       port('out', 'message', 'message'),
+      responsePort,
       port('out', 'metric', 'metric'),
     ],
     settings: [
@@ -296,6 +308,7 @@ export const awsKinds: Record<Kind, AwsKind> = {
     ports: [
       port('in', 'request', 'request', true),
       port('out', 'query', 'query'),
+      responsePort,
       port('out', 'metric', 'metric'),
     ],
     settings: [
@@ -319,6 +332,7 @@ export const awsKinds: Record<Kind, AwsKind> = {
       port('in', 'request', 'request', true),
       port('in', 'image', 'image', false, '실행할 이미지'),
       port('out', 'query', 'query'),
+      responsePort,
       port('out', 'metric', 'metric'),
     ],
     settings: [
@@ -351,6 +365,7 @@ export const awsKinds: Record<Kind, AwsKind> = {
       port('in', 'event', 'event', true),
       port('in', 'message', 'message', true),
       port('out', 'query', 'query'),
+      responsePort,
       port('out', 'metric', 'metric'),
     ],
     settings: [
@@ -376,6 +391,8 @@ export const awsKinds: Record<Kind, AwsKind> = {
           datum('metric', 'Lambda 지표', { source: ctx.node.name, requests: count }),
           'out-metric',
         );
+      const total = Math.max(count, ...items.map((item) => Number(item.data.total ?? 0)));
+      respond(ctx, count, total);
       return '이벤트 ' + count + '건으로 함수를 실행했습니다.';
     },
   },
@@ -386,6 +403,7 @@ export const awsKinds: Record<Kind, AwsKind> = {
     ports: [
       port('in', 'request', 'request', true),
       port('out', 'event', 'event', false, '객체 생성 이벤트'),
+      responsePort,
     ],
     settings: [
       choice('access', '퍼블릭 액세스', 'private', [
@@ -403,6 +421,7 @@ export const awsKinds: Record<Kind, AwsKind> = {
         ctx.emit(
           datum('event', '객체 이벤트 ' + data.count + '건', { count: data.count, source: 's3' }),
         );
+      respond(ctx, data.count, data.total);
       return '객체 요청 ' + data.count + '건에 응답했습니다.';
     },
   },

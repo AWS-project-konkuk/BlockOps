@@ -49,7 +49,7 @@ describe('실패 원인 표시', () => {
     ]);
     const result = runLab(wrong, 'test', lab);
     expect(result.success).toBe(false);
-    expect(result.message).toContain('요청 분배가 지정한 모델을 연결하세요.');
+    expect(result.message).toContain('요청 분배가 지정한 버전을 연결하세요.');
   });
 });
 

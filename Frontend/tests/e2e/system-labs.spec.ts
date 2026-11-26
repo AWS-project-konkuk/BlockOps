@@ -75,9 +75,9 @@ test('0단원 · Git의 코드와 S3의 파일을 연결해 EC2에서 리뷰 3�
   );
 });
 
-test('9단원 · 신규 모델 경로를 만들고 Shadow로 응답을 유지한다', async ({ page }) => {
+test('9단원 · 신규 버전 경로를 만들고 Shadow로 응답을 유지한다', async ({ page }) => {
   const lab = await openLab(page, transitionLab.id);
-  const model = await addNode(lab, 'gateway', '모델 처리');
+  const model = await addNode(lab, 'gateway', '버전 처리');
   await connectTasks(lab, [
     wired('router', 'new', model, 'request'),
     wired('start', 'new', model, 'model'),
@@ -95,7 +95,7 @@ test('9단원 · 신규 모델 경로를 만들고 Shadow로 응답을 유지한
     '100건',
   );
   await expect(
-    metrics.getByText('신규 모델 사용자 응답', { exact: true }).locator('..'),
+    metrics.getByText('신규 버전 사용자 응답', { exact: true }).locator('..'),
   ).toHaveText(/응답0건$/);
   await expect(metrics.getByText('Shadow 비교 로그', { exact: true }).locator('..')).toContainText(
     '10건',
